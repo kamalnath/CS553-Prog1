@@ -20,7 +20,7 @@ public class BenchMarkExecuter {
     private Object task;
     private static final int maxRestoreJvmLoops = 100;
     protected Measurement[] measurements;
-    protected long numberExecutions;
+    protected long numberExecutions =1 ;
 
     public BenchMarkExecuter(Runnable job, Params params) {
         try {
@@ -41,8 +41,10 @@ public class BenchMarkExecuter {
         try {
             if (params.getManyExecutions()) {
                 warmupJvm();
-                determineNumberExecutions();
+                System.out.println("warming up done");
+               
                 doMeasurements();
+                
                 calculateStats();
             }
         } finally {
@@ -56,7 +58,7 @@ public class BenchMarkExecuter {
         Arrays.sort(sampleSorted);
         
         System.out.println("mdeian : " +CalcSupport.median(sampleSorted));
-        System.out.println("mdeian : " +CalcSupport.mean(sampleSorted));
+        System.out.println("mean : " +CalcSupport.mean(sampleSorted));
         
         
     }
@@ -73,27 +75,15 @@ public class BenchMarkExecuter {
     protected void doMeasurements() throws Exception {
         cleanJvm();
         measurements = new Measurement[params.getNumberMeasurements()];
-        String jvmStateDiff = null;
         int total = 0;
         for (int i = 0; i < measurements.length; i++, total++) {
             measurements[i] = measure(numberExecutions);
 
         }
+        System.out.println(" measurements" + measurements);
     }
 
-    protected void determineNumberExecutions() throws Exception {
-        cleanJvm();
-        for (long n = 1;;) {
-            Measurement m = measure(n);
-            if (m.executionTime <= params.getExecutionTimeGoal()) {
-                n *= 2;
-                continue;
-            } else {	// have obtained a reliable estimate of n
-                numberExecutions = n;
-                return;
-            }
-        }
-    }
+   
 
     protected void warmupJvm() throws Exception {
         cleanJvm();
@@ -154,7 +144,7 @@ public class BenchMarkExecuter {
         return System.nanoTime();
     }
 
-    protected double timeDiffSeconds(long t1, long t2) throws IllegalArgumentException {
+    public static double timeDiffSeconds(long t1, long t2) throws IllegalArgumentException {
         if (t1 > t2) {
             throw new IllegalArgumentException("clock ran backwards: t1 = " + t1 + " > t2 = " + t2);
         }
