@@ -8,6 +8,9 @@
  */
 package DiskBenchmark;
 
+
+import BenchCommonUtils.BenchMarkExecuter;
+import BenchCommonUtils.Params;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -15,20 +18,20 @@ import java.nio.channels.FileChannel;
 public class BenchDiskMain {
 
     private static int BUFFER = 8192;
-
+    private static final Params params = new Params();
     public static void main(String[] args) throws FileNotFoundException, IOException {
         benchText();
-        //bench();
+        //bench();params
     }
 
     private static void benchText() {
-//        File littleFileRead = new File("D:/Data/read/tmp/little-text");
-//        File littleFileWrite = new File("D:/Data/write/tmp/little-text");
-//        System.out.println("Start benchmark with little file (1 B)");
-//        
-//        benchRead(littleFileRead);
-//        //benchWrite(littleFileWrite, 1);
-//        
+        File littleFileRead = new File("D:/Data/read/tmp/little-text");
+        File littleFileWrite = new File("D:/Data/write/tmp/little-text");
+        System.out.println("Start benchmark with little file (1 B)");
+
+        //benchRead(littleFileRead);
+        benchWrite(littleFileWrite, 1);
+
 //        File middleFileRead = new File("D:/Data/read/tmp/medium-text");
 //        File middleFileWrite =
 //                new File("D:/Data/write/tmp/medium-text");
@@ -36,22 +39,22 @@ public class BenchDiskMain {
 //        System.out.println("Start benchmark with medium file (1 KB)");
 //
 //        benchRead(middleFileRead);
-//        //benchWrite(middleFileWrite, 2);
+//        benchWrite(middleFileWrite, 2);
 //        File bigFileRead = new File("D:/Data/read/tmp/big-text");
 //        File bigFileWrite = new File("D:/Data/write/tmp/big-text");
 //
 //        System.out.println("Start benchmark with big file (1 MB)");
 //
-//        benchRead(bigFileRead);
-//        //benchWrite(bigFileWrite, 3);
-
-        File fatFileRead = new File("D:/Data/read/tmp/fat-text");
-        File fatFileWrite = new File("D:/Data/write/tmp/fat-text");
-
-        System.out.println("Start benchmark with fat file (1GB)");
-
-        benchRead(fatFileRead);
-        //benchWrite(fatFileWrite, 4);
+//        //benchRead(bigFileRead);
+//        benchWrite(bigFileWrite, 3);
+//
+//        File fatFileRead = new File("D:/Data/read/tmp/fat-text");
+//        File fatFileWrite = new File("D:/Data/write/tmp/fat-text");
+//
+//        System.out.println("Start benchmark with fat file (1GB)");
+//
+//        benchRead(fatFileRead);
+//        benchWrite(fatFileWrite, 4);
 
     }
 
@@ -70,42 +73,10 @@ public class BenchDiskMain {
         }
     }
 
-    private static void customBufferBufferedStreamWrite(File target, int iType) {
+    private static void customBufferBufferedStreamWrite(File target, int bufflen, int limit, byte[] buf) {
         OutputStream fos = null;
         try {
             fos = new BufferedOutputStream(new FileOutputStream(target));
-            byte[] buf;
-            int limit = 0;
-            int bufflen = BUFFER;
-            int iSize = 0;
-            switch (iType) {
-                case 1:
-                    buf = new byte[1];
-                    bufflen = 1;
-                    limit = 1;
-                    break;
-                case 2:
-                    buf = new byte[512];
-                    bufflen = 512;
-                    limit = 1;
-                    break;
-                case 3:
-                    buf = new byte[BUFFER];
-                    iSize = 1024 * 1024;
-                    limit = iSize / BUFFER ;
-                    break;
-                case 4:
-                    int Fact=1000;
-                    buf = new byte[BUFFER * Fact];
-                    bufflen = BUFFER * Fact;
-                    iSize = 1024 * 1024 * 1024;
-                    limit = iSize / (BUFFER * Fact);
-                    System.out.println("4" +limit);
-                    break;
-                default:
-                    buf = new byte[BUFFER];
-                    break;
-            }
             while (limit >= 0) {
                 fos.write(buf, 0, bufflen);
                 limit--;
@@ -174,11 +145,62 @@ public class BenchDiskMain {
     }
 
     private static void benchRead(File sourceFileRead) {
-        
         customBufferBufferedStreamRead(sourceFileRead);
     }
 
-    private static void benchWrite(File destFileWrite, int i) {
-        customBufferBufferedStreamWrite(destFileWrite, i);
+    private static void benchWrite(final File destFileWrite, final int iType) {
+
+        byte[] buf;
+        int limit = 0;
+        int bufflen = 0;
+        int iSize = 0;
+        int iFact = 1;
+
+        switch (iType) {
+            case 1:
+                buf = new byte[1];
+                bufflen = 1;
+                limit = 1;
+                break;
+            case 2:
+                buf = new byte[512];
+                bufflen = 512;
+                limit = 1;
+                break;
+            case 3:
+                System.out.println("here");
+                buf = new byte[BUFFER];
+                bufflen = BUFFER;
+                iSize = 1024 * 1024;
+                limit = iSize / BUFFER;
+                System.out.println("  3 " + limit);
+                break;
+            case 4:
+                iFact = 1000;
+                buf = new byte[BUFFER * iFact];
+                bufflen = BUFFER * iFact;
+                iSize = 1024 * 1024 * 1024;
+                limit = iSize / (BUFFER * iFact);
+                System.out.println("  4 " + limit);
+                break;
+            default:
+                buf = new byte[BUFFER];
+                break;
+        }
+        final int ilimit = limit;
+        final int ibufflen = bufflen;
+        final byte[] fbuf = buf;
+        Runnable customBufferBufferedStreamRunnable = new Runnable() {
+
+            @Override
+            public void run() {
+                customBufferBufferedStreamWrite(destFileWrite, ibufflen, ilimit, fbuf);
+            }
+        };
+        
+        
+        
+        BenchMarkExecuter benchCustomBufferBufferedStream = new BenchMarkExecuter(customBufferBufferedStreamRunnable , params);
+
     }
 }
