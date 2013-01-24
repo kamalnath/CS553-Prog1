@@ -8,17 +8,18 @@
  */
 package DiskBenchmark;
 
-
 import BenchCommonUtils.BenchMarkExecuter;
 import BenchCommonUtils.Params;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.Callable;
 
 public class BenchDiskMain {
 
     private static int BUFFER = 8192;
     private static final Params params = new Params();
+
     public static void main(String[] args) throws FileNotFoundException, IOException {
         benchText();
         //bench();params
@@ -190,17 +191,22 @@ public class BenchDiskMain {
         final int ilimit = limit;
         final int ibufflen = bufflen;
         final byte[] fbuf = buf;
-        Runnable customBufferBufferedStreamRunnable = new Runnable() {
+        Callable customBufferBufferedStreamCallable = new Callable() {
 
+            @Override
+            public Object call() {
+                customBufferBufferedStreamWrite(destFileWrite, ibufflen, ilimit, fbuf);
+                return null;
+            }
+        };
+
+        Runnable customBufferBufferedStreamRunnable = new Runnable() {
             @Override
             public void run() {
                 customBufferBufferedStreamWrite(destFileWrite, ibufflen, ilimit, fbuf);
             }
         };
-        
-        
-        
-        BenchMarkExecuter benchCustomBufferBufferedStream = new BenchMarkExecuter(customBufferBufferedStreamRunnable , params);
-
+        BenchMarkExecuter benchCustomBufferBufferedStreamSeq = new BenchMarkExecuter(customBufferBufferedStreamCallable, params);
+        BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
     }
 }
