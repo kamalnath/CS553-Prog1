@@ -7,12 +7,39 @@ package DiskBenchmark;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 
 /**
  *
  * @author KamalNath_NG
  */
 public class junk {
+    
+     public static void main(String[] args) throws FileNotFoundException, IOException, InterruptedException {
+         Runnable customBufferBufferedStreamRunnable = new Runnable() {
+             @Override
+             public void run() {
+                  for (int i = 0; i < 2; i++) {
+                 System.out.println("child thread");
+                  }
+
+             }
+         };
+         ArrayList<Thread> arrT = new ArrayList<Thread>();
+         for (int i = 0; i < 2; i++) {
+             arrT.add(new Thread(customBufferBufferedStreamRunnable));
+         }
+         for (Thread tr : arrT) {
+             tr.start();
+         }
+         
+         for (Thread tr : arrT) {
+             tr.join();
+         }
+         System.out.println("Main thread");
+    }
+    
+    
     
     private static final int BUFFER = 8192;
        private static void nioBufferCopy(File source, File target) {
