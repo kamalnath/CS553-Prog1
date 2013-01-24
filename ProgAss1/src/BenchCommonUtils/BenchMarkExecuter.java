@@ -52,6 +52,7 @@ public class BenchMarkExecuter {
         }
     }
 
+    
     protected void calculateStats() throws IllegalStateException {
         double[] times = getTimes();
         double[] sampleSorted = times.clone();	// must make a clone since do not want the sort side effect to affect the caller
