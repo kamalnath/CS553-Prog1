@@ -7,6 +7,9 @@ package BenchCommonUtils;
 import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,9 +23,9 @@ public class BenchMarkExecuter {
     private Object task;
     private static final int maxRestoreJvmLoops = 100;
     protected Measurement[] measurements;
-    protected long numberExecutions =1 ;
+    protected long numberOfThreads =2 ;
 
-    public BenchMarkExecuter(Runnable job, Params params) {
+    public BenchMarkExecuter(Object job, Params params) {
         try {
             perform(job, params);
         } catch (IllegalArgumentException ex) {
@@ -35,16 +38,13 @@ public class BenchMarkExecuter {
     }
 
     protected void perform(Object task, Params params) throws IllegalArgumentException, IllegalStateException, Exception {
-
         this.task = task;
         this.params = params;
         try {
+            cleanJvm();
             if (params.getManyExecutions()) {
                 warmupJvm();
-                System.out.println("warming up done");
-               
                 doMeasurements();
-                
                 calculateStats();
             }
         } finally {
@@ -56,9 +56,14 @@ public class BenchMarkExecuter {
         double[] times = getTimes();
         double[] sampleSorted = times.clone();	// must make a clone since do not want the sort side effect to affect the caller
         Arrays.sort(sampleSorted);
+        System.out.print(" Latency Median : " +CalcSupport.median(sampleSorted));
+        System.out.print("  Mean : " +CalcSupport.mean(sampleSorted));
         
-        System.out.println("mdeian : " +CalcSupport.median(sampleSorted));
-        System.out.println("mean : " +CalcSupport.mean(sampleSorted));
+        if (task instanceof Runnable){
+            System.out.println(" Parallel Through put : " + (params.numberMeasurements*2/CalcSupport.sum(sampleSorted)));
+        }else{
+            System.out.println(" Sequential Through put : " + (params.numberMeasurements/CalcSupport.sum(sampleSorted)));
+        }
         
         
     }
@@ -77,20 +82,17 @@ public class BenchMarkExecuter {
         measurements = new Measurement[params.getNumberMeasurements()];
         int total = 0;
         for (int i = 0; i < measurements.length; i++, total++) {
-            measurements[i] = measure(numberExecutions);
-
+            measurements[i] = measure(numberOfThreads);
         }
-        System.out.println(" measurements" + measurements);
     }
 
    
 
     protected void warmupJvm() throws Exception {
         cleanJvm();
-
         long n = 1;
         for (long start = System.nanoTime(); System.nanoTime() - start < params.getWarmupTime() * 1e9; n *= 2) {	// * 1e9 converts warmupTime to ns
-            measure(n);	// ignore result
+            measure(n);	
         }
     }
 
@@ -118,18 +120,21 @@ public class BenchMarkExecuter {
     }
 
     protected Measurement measure(long n) throws IllegalArgumentException, Exception {
-
-        long t1 = timeNs();
+        long t1 = -1;
+       // ExecutorService e1 = Executors.newFixedThreadPool(2);
         if (task instanceof Callable) {
             Callable callable = (Callable) task;
-            for (long i = 0; i < n; i++) {
-                callable.call();
-            }
+            t1 = timeNs();
+            callable.call();
         } else if (task instanceof Runnable) {
             Runnable runnable = (Runnable) task;
-            for (long i = 0; i < n; i++) {
-                runnable.run();
-            }
+            Thread m1 = new Thread(runnable);
+            Thread m2 = new Thread(runnable);
+            t1 = timeNs();
+            m1.start();
+            m2.start();
+            m1.join();
+            m2.join();
         } else {
             throw new IllegalStateException("task is neither a Callable or Runnable--this should never happen");
         }
@@ -149,6 +154,7 @@ public class BenchMarkExecuter {
             throw new IllegalArgumentException("clock ran backwards: t1 = " + t1 + " > t2 = " + t2);
         }
         long diff = t2 - t1;
-        return diff * 1e-9;
+        return diff ;
+        //return diff * 1e-9;
     }
 }

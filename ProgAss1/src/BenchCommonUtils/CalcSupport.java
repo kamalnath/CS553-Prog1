@@ -30,5 +30,10 @@ public class CalcSupport {
 		}
 		return sum / numbers.length;
 	}
+    public static double sum(double[] numbers) throws IllegalArgumentException {
+		double sum = 0.0;
+		for (double d : numbers) sum += d;
+		return sum;
+	}
    
 }
