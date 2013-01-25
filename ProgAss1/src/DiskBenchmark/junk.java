@@ -98,6 +98,42 @@ public class junk {
             }
         }
     }
+    private static void nioBufferRead(File source) {
+        FileChannel in = null;
+        try {
+            in = new FileInputStream(source).getChannel();
+            ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER);
+            while (in.read(buffer) != -1) {
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(in);
+        }
+    }
+
+    private static void nioBufferWrite(File target, int iSize) {
+        FileChannel out = null;
+
+        try {
+            out = new FileOutputStream(target).getChannel();
+            ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER);
+
+            int limit = iSize / BUFFER;
+            while (limit >= 0) {
+                buffer.flip();
+                while (buffer.hasRemaining()) {
+                    out.write(buffer);
+                }
+                limit--;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(out);
+        }
+    }
     /*
      * /*
  * package com.wicht;

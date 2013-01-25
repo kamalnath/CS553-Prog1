@@ -27,11 +27,11 @@ public class BenchMarkExecuter {
     private static final int maxRestoreJvmLoops = 100;
     protected Measurement[] measurements;
     protected long numberOfThreads = 2;
-    InputStream fis ;
+    
 
     public BenchMarkExecuter(Object job, Params params) {
         try {
-            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
+            
             perform(job, params);
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(BenchMarkExecuter.class.getName()).log(Level.SEVERE, null, ex);
@@ -54,7 +54,7 @@ public class BenchMarkExecuter {
                 System.out.println("Cleaning up ");
             }
         } finally {
-            RandomUtils.fileCleanup();
+            //RandomUtils.fileCleanup();
             cleanJvm();
         }
     }
@@ -189,6 +189,7 @@ public class BenchMarkExecuter {
         OutputStream fos;
         CustBuffBuffStreamCallableWrite callableW;
         CustBuffBuffStreamCallableRead callableR;
+        InputStream fis ;
         if (params.isWriteOP) {
                 callableW = (CustBuffBuffStreamCallableWrite) task;
                 fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
@@ -196,6 +197,7 @@ public class BenchMarkExecuter {
                 return  callableW;
                 
             } else {
+                fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
                 callableR = (CustBuffBuffStreamCallableRead) task;
                 callableR.setFis(fis);
                 return  callableR;

@@ -16,8 +16,8 @@ import java.util.Random;
  */
 class RandomUtils {
 
-    private static final String filepathWrite = "D:/Data/tmp/write";
-    private static final String filepathRead = "D:/Data/tmp/read/FileRead";
+    private static final String filepathWrite = "D:/Data/tmp/write/";
+    private static final String filepathRead = "D:/Data/read/FileRead";
 
     public static String getFilepathRead() {
         return filepathRead;

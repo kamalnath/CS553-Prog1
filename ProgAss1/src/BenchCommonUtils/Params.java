@@ -18,6 +18,14 @@ public class Params implements Cloneable {
     protected long numberActions = 1;
     protected long numberThreads = 1;
 
+    public long getNumberThreads() {
+        return numberThreads;
+    }
+
+    public void setNumberThreads(long numberThreads) {
+        this.numberThreads = numberThreads;
+    }
+
     public boolean isIsWriteOP() {
         return isWriteOP;
     }
