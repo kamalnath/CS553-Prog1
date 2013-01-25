@@ -23,7 +23,7 @@ public class CustBuffBuffStreamCallableRead implements Callable {
 
     public void setFis(InputStream fis) {
         this.fis = fis;
-    }
+    } 
 
     public CustBuffBuffStreamCallableRead(byte[] fbuf) {
         this.fbuf = fbuf;

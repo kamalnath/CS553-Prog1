@@ -124,7 +124,7 @@ public class junk {
                 buffer.flip();
                 while (buffer.hasRemaining()) {
                     out.write(buffer);
-                }
+                 }
                 limit--;
             }
 

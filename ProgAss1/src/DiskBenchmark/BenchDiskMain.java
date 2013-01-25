@@ -99,7 +99,7 @@ public class BenchDiskMain {
                 params.setWarmupTime(10);
                 params.setNumberMeasurements(1000);
                 buf = new byte[512];
-                break;
+                break; 
             case 3:
                 params.setNumberMeasurements(1000);
                 params.setWarmupTime(10);

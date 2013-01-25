@@ -7,7 +7,7 @@ package BenchCommonUtils;
 /**
  *
  * @author kamalnath_ng
- */
+ */ 
 
 public class CalcSupport {
     public static double quantile(double[] numbers, int k, int q) throws IllegalArgumentException {

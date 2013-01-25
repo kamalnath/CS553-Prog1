@@ -10,4 +10,4 @@ public class Measurement {
     protected Measurement(double executionTime) {
         this.executionTime = executionTime;
     }
-}
+} 

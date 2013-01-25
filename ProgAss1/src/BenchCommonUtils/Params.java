@@ -10,7 +10,7 @@ public class Params implements Cloneable {
     protected boolean measureCpuTime = false;
     protected boolean isWriteOP = true;
     protected boolean manyExecutions = true;
-    
+     
     protected double warmupTime = 10.0;
     protected double executionTimeGoal = 1;
     protected int numberMeasurements = 600;

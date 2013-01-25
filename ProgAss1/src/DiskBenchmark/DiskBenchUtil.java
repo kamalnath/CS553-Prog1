@@ -11,7 +11,7 @@ import java.io.*;
  * @author kamalnath_ng
  */
 public class DiskBenchUtil {
-
+  
     public static void customBufferBufferedStreamWrite(OutputStream fos, int bufflen, byte[] buf) {
         try {
             fos.write(buf, 0, bufflen);
