@@ -8,22 +8,24 @@ package BenchCommonUtils;
 public class Params implements Cloneable {
 
     protected boolean measureCpuTime = false;
-    protected boolean isThreaded = false;
+    protected boolean isWriteOP = true;
     protected boolean manyExecutions = true;
     
     protected double warmupTime = 10.0;
     protected double executionTimeGoal = 1;
-    protected int numberMeasurements = 60;
+    protected int numberMeasurements = 600;
     protected double confidenceLevel = 0.95;
     protected long numberActions = 1;
+    protected long numberThreads = 1;
 
-    public boolean isIsThreaded() {
-        return isThreaded;
+    public boolean isIsWriteOP() {
+        return isWriteOP;
     }
 
-    public void setIsThreaded(boolean isThreaded) {
-        this.isThreaded = isThreaded;
+    public void setIsWriteOP(boolean isWriteOP) {
+        this.isWriteOP = isWriteOP;
     }
+
     
 
     public Params() {

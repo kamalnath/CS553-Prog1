@@ -2,8 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package BenchCommonUtils;
+package BenchCommonUtils;     
 
+import DiskBenchmark.CustBuffBuffStreamCallableRead;
+import DiskBenchmark.CustBuffBuffStreamCallableWrite;
+import DiskBenchmark.CustBuffBuffStreamRunnableRead;
+import DiskBenchmark.CustBuffBuffStreamRunnableWrite;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,9 +27,11 @@ public class BenchMarkExecuter {
     private static final int maxRestoreJvmLoops = 100;
     protected Measurement[] measurements;
     protected long numberOfThreads = 2;
+    InputStream fis ;
 
     public BenchMarkExecuter(Object job, Params params) {
         try {
+            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
             perform(job, params);
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(BenchMarkExecuter.class.getName()).log(Level.SEVERE, null, ex);
@@ -44,8 +51,10 @@ public class BenchMarkExecuter {
                 warmupJvm();
                 doMeasurements();
                 calculateStats();
+                System.out.println("Cleaning up ");
             }
         } finally {
+            RandomUtils.fileCleanup();
             cleanJvm();
         }
     }
@@ -117,21 +126,18 @@ public class BenchMarkExecuter {
 
     protected Measurement measure(long n) throws IllegalArgumentException, Exception {
         long t1 = -1;
+        Callable objCallable;
         if (task instanceof Callable) {
-            Callable callable = (Callable) task;
+            objCallable = processCallableTask();
             t1 = timeNs();
-            callable.call();
+            objCallable.call();
         } else if (task instanceof Runnable) {
-            Runnable runnable = (Runnable) task;
             ArrayList<Thread> arrT = new ArrayList<Thread>();
-            for (int i = 0; i < 2; i++) {
-                arrT.add(new Thread(runnable));
-            }
+            arrT = processRunnableTask(arrT);
             t1 = timeNs();
             for (Thread tr : arrT) {
                 tr.start();
             }
-
             for (Thread tr : arrT) {
                 tr.join();
             }
@@ -154,7 +160,46 @@ public class BenchMarkExecuter {
             throw new IllegalArgumentException("clock ran backwards: t1 = " + t1 + " > t2 = " + t2);
         }
         long diff = t2 - t1;
-        return diff;
-        //return diff * 1e-9;
+        //return diff;
+        return diff * 1e-9;
+    }
+
+    private ArrayList processRunnableTask(ArrayList<Thread> arrT) throws FileNotFoundException {
+                InputStream fis;
+                OutputStream fos;
+        if (params.isWriteOP) {
+                CustBuffBuffStreamRunnableWrite runnable = (CustBuffBuffStreamRunnableWrite) task;
+                for (int i = 0; i < 2; i++) {
+                    fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+                    runnable.setFos(fos);
+                    arrT.add(new Thread(runnable));
+                }
+            } else {
+                CustBuffBuffStreamRunnableRead runnable = (CustBuffBuffStreamRunnableRead) task;
+                for (int i = 0; i < params.numberThreads; i++) {
+                    fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()+i));
+                    runnable.setFis(fis);
+                    arrT.add(new Thread(runnable));
+                }
+            }
+        return arrT;
+    }
+
+    private Callable processCallableTask() throws FileNotFoundException {
+        OutputStream fos;
+        CustBuffBuffStreamCallableWrite callableW;
+        CustBuffBuffStreamCallableRead callableR;
+        if (params.isWriteOP) {
+                callableW = (CustBuffBuffStreamCallableWrite) task;
+                fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+                callableW.setFos(fos);
+                return  callableW;
+                
+            } else {
+                callableR = (CustBuffBuffStreamCallableRead) task;
+                callableR.setFis(fis);
+                return  callableR;
+            }
+        
     }
 }
