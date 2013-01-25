@@ -13,7 +13,7 @@ import BenchCommonUtils.Params;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.concurrent.Callable;
+import java.util.Set;
 
 public class BenchDiskMain {
 
@@ -22,17 +22,21 @@ public class BenchDiskMain {
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
         benchText();
-        //bench();params
     }
 
-    private static void benchText() {
-        File littleFileRead = new File("D:/Data/read/tmp/little-text");
-        File littleFileWrite = new File("D:/Data/write/tmp/little-text");
-        System.out.println("Start benchmark with little file (1 B)");
-
-        //benchRead(littleFileRead);
-        benchWrite(littleFileWrite, 1);
-
+    private static void benchText() throws FileNotFoundException {
+        
+        System.out.println("Start WRITE benchmark with little block (1 B)");
+        benchWrite(1);
+        System.out.println("Start WRITE benchmark with medium block (1 KB)");
+        benchWrite(2);
+        System.out.println("Start WRITE benchmark with medium block (1 MB)");
+        benchWrite(3);
+        System.out.println("Start WRITE benchmark with medium block (1 GB)");
+        benchWrite(4);
+        
+        benchRead(1);
+        
 //        File middleFileRead = new File("D:/Data/read/tmp/medium-text");
 //        File middleFileWrite =
 //                new File("D:/Data/write/tmp/medium-text");
@@ -149,65 +153,79 @@ public class BenchDiskMain {
         customBufferBufferedStreamRead(sourceFileRead);
     }
 
-    private static void benchWrite(final File destFileWrite, final int iType) {
+    private static void benchWrite( final int iType) throws FileNotFoundException {
 
         byte[] buf;
-        int limit = 0;
         int bufflen = 0;
-        int iSize = 0;
-        int iFact = 1;
-
         switch (iType) {
             case 1:
                 buf = new byte[1];
                 bufflen = 1;
-                limit = 1;
                 break;
             case 2:
+                params.setNumberMeasurements(1000);
                 buf = new byte[512];
                 bufflen = 512;
-                limit = 1;
                 break;
             case 3:
-                System.out.println("here");
-                buf = new byte[BUFFER];
-                bufflen = BUFFER;
-                iSize = 1024 * 1024;
-                limit = iSize / BUFFER;
-                System.out.println("  3 " + limit);
+                params.setNumberMeasurements(10);
+                params.setWarmupTime(2);
+                buf = new byte[1024 * 1024];
+                bufflen = buf.length;
                 break;
             case 4:
-                iFact = 1000;
-                buf = new byte[BUFFER * iFact];
-                bufflen = BUFFER * iFact;
-                iSize = 1024 * 1024 * 1024;
-                limit = iSize / (BUFFER * iFact);
-                System.out.println("  4 " + limit);
+                params.setNumberMeasurements(1);
+                params.setWarmupTime(1);
+                buf = new byte[1024 * 1024 * 1024];
+                bufflen = buf.length;
                 break;
             default:
                 buf = new byte[BUFFER];
                 break;
         }
-        final int ilimit = limit;
         final int ibufflen = bufflen;
         final byte[] fbuf = buf;
-        Callable customBufferBufferedStreamCallable = new Callable() {
-
-            @Override
-            public Object call() {
-                customBufferBufferedStreamWrite(destFileWrite, ibufflen, ilimit, fbuf);
-                return null;
-            }
-        };
-
-        Runnable customBufferBufferedStreamRunnable = new Runnable() {
-            @Override
-            public void run() {
-                customBufferBufferedStreamWrite(destFileWrite, ibufflen, ilimit, fbuf);
-            }
-        };
+        
+        CustBuffBuffStreamCallableWrite customBufferBufferedStreamCallable = new CustBuffBuffStreamCallableWrite( ibufflen, fbuf);
         BenchMarkExecuter benchCustomBufferBufferedStreamSeq = new BenchMarkExecuter(customBufferBufferedStreamCallable, params);
-        BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
+        
+        // customBufferBufferedStreamRunnable = new CustBuffBuffStreamRunnable( ibufflen, fbuf);
+        //BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
+    }
+    
+    private static void benchRead( final int iType) throws FileNotFoundException {
+
+        byte[] buf;
+        params.setIsWriteOP(false);
+        switch (iType) {
+            case 1:
+                buf = new byte[1];
+                break;
+            case 2:
+                params.setNumberMeasurements(1000);
+                buf = new byte[512];
+                break;
+            case 3:
+                params.setNumberMeasurements(10);
+                params.setWarmupTime(2);
+                buf = new byte[1024 * 1024];
+                break;
+            case 4:
+                params.setNumberMeasurements(1);
+                params.setWarmupTime(1);
+                buf = new byte[1024 * 1024 * 1024];
+                break;
+            default:
+                buf = new byte[BUFFER];
+                break;
+        }
+        final byte[] fbuf = buf;
+        
+        CustBuffBuffStreamCallableRead customBufferBufferedStreamCallable = new CustBuffBuffStreamCallableRead(  fbuf);
+        BenchMarkExecuter benchCustomBufferBufferedStreamSeq = new BenchMarkExecuter(customBufferBufferedStreamCallable, params);
+        
+        // customBufferBufferedStreamRunnable = new CustBuffBuffStreamRunnable( ibufflen, fbuf);
+        //BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
     }
     
 }
