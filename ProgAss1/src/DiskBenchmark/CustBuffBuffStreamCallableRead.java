@@ -4,6 +4,10 @@
  */
 package DiskBenchmark;
 
+import BenchCommonUtils.RandomUtils;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
@@ -38,7 +42,8 @@ public class CustBuffBuffStreamCallableRead implements Callable {
     }
 
     @Override
-    public Object call() {
+    public Object call() throws FileNotFoundException {
+        fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
         DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);
         return null;
     }

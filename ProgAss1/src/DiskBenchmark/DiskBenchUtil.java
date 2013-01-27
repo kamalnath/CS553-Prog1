@@ -4,7 +4,10 @@
  */
 package DiskBenchmark;
 
+import BenchCommonUtils.RandomUtils;
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -41,5 +44,30 @@ public class DiskBenchUtil {
             }
         }
 
+    }
+
+    public static void RandFileRead(RandomAccessFile file, byte[] fbuf) {
+        try {
+            int rand =RandomUtils.getRandomGenerator().nextInt((int)file.length());
+            file.seek(rand);
+            file.read(fbuf);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            close(file);
+        }
+    }
+    public static void RandFileWrite(RandomAccessFile file, byte[] fbuf) {
+        try {
+            int rand =RandomUtils.getRandomGenerator().nextInt((int)file.length());
+            file.seek(rand);
+            file.write(fbuf);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            close(file);
+        }
     }
 }

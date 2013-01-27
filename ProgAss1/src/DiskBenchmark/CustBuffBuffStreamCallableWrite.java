@@ -4,6 +4,10 @@
  */
 package DiskBenchmark;
 
+import BenchCommonUtils.RandomUtils;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
 
@@ -18,7 +22,8 @@ public class CustBuffBuffStreamCallableWrite implements Callable {
     byte[] fbuf;
 
     @Override
-    public Object call() {
+    public Object call() throws FileNotFoundException {
+        fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
         DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen, fbuf);
         return null;
     }

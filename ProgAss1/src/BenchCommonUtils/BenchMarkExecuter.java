@@ -126,14 +126,19 @@ public class BenchMarkExecuter {
 
     protected Measurement measure(long n) throws IllegalArgumentException, Exception {
         long t1 = -1;
-        Callable objCallable;
+        
         if (task instanceof Callable) {
-            objCallable = processCallableTask();
+            Callable objCallable = (Callable) task;
+            //objCallable = processCallableTask();
             t1 = timeNs();
             objCallable.call();
         } else if (task instanceof Runnable) {
             ArrayList<Thread> arrT = new ArrayList<Thread>();
-            arrT = processRunnableTask(arrT);
+            //arrT = processRunnableTask(arrT);
+            Runnable runnable = (Runnable) task;
+            for (int i = 0; i < params.numberThreads; i++) {
+                    arrT.add(new Thread(runnable));
+                }
             t1 = timeNs();
             for (Thread tr : arrT) {
                 tr.start();

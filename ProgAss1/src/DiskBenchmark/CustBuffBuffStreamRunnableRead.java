@@ -4,9 +4,15 @@
  */
 package DiskBenchmark;
 
+import BenchCommonUtils.RandomUtils;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -16,6 +22,7 @@ public class CustBuffBuffStreamRunnableRead implements Runnable {
 
     InputStream fis;
     byte[] fbuf;
+    static int i;
 
     public CustBuffBuffStreamRunnableRead(  byte[] fbuf) {
         this.fbuf = fbuf;
@@ -40,7 +47,13 @@ public class CustBuffBuffStreamRunnableRead implements Runnable {
     }
     @Override
     public void run() {
-        DiskBenchUtil.customBufferBufferedStreamRead(fis,   fbuf);
+        try {
+            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()+i));
+            i++;
+            DiskBenchUtil.customBufferBufferedStreamRead(fis,   fbuf);
+        } catch (FileNotFoundException ex) {
+           ex.printStackTrace();
+        }
     }
     
 }

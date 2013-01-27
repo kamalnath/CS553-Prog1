@@ -14,7 +14,7 @@ import java.util.Random;
  * @author kamalnath_ng
  *
  */
-class RandomUtils {
+public class RandomUtils {
 
     private static final String filepathWrite = "D:/Data/tmp/write/";
     private static final String filepathRead = "D:/Data/read/FileRead";
@@ -22,7 +22,12 @@ class RandomUtils {
     public static String getFilepathRead() {
         return filepathRead;
     }
+    
     private static Random randomGenerator = new Random();
+
+    public static Random getRandomGenerator() {
+        return randomGenerator;
+    }
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
         System.out.println(getRandFileName());

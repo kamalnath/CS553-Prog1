@@ -11,9 +11,6 @@ package DiskBenchmark;
 import BenchCommonUtils.BenchMarkExecuter;
 import BenchCommonUtils.Params;
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.Set;
 
 public class BenchDiskMain {
 
@@ -34,10 +31,11 @@ public class BenchDiskMain {
 //        benchWrite(3);
 //        System.out.println("Start WRITE benchmark with medium block (1 GB)");
 //        benchWrite(4);
-            benchRead(1);
-            benchRead(2);
-            benchRead(3);
-//            benchWrite(5);
+        
+//            benchRead(1);
+//            benchRead(2);
+//            benchRead(3);
+//            benchRead(4);
     }
 
     private static void benchWrite( final int iType) throws FileNotFoundException {
@@ -80,9 +78,18 @@ public class BenchDiskMain {
         CustBuffBuffStreamCallableWrite customBufferBufferedStreamCallable = new CustBuffBuffStreamCallableWrite( ibufflen, fbuf);
         BenchMarkExecuter benchCustomBufferBufferedStreamSeq = new BenchMarkExecuter(customBufferBufferedStreamCallable, params);
         
-        // customBufferBufferedStreamRunnable = new CustBuffBuffStreamRunnable( ibufflen, fbuf);
-        //params.setNumberThreads(2);
-        //BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
+        RandCallableWrite objRandCallableWrite = new RandCallableWrite(fbuf);
+        BenchMarkExecuter benchRandCallableWrite = new BenchMarkExecuter(objRandCallableWrite, params);
+        
+        params.setNumberThreads(2);
+        CustBuffBuffStreamRunnableWrite customBufferBufferedStreamRunnable = new CustBuffBuffStreamRunnableWrite( ibufflen, fbuf);
+        BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
+        
+        RandRunnableWrite objRandRunnableWrite = new RandRunnableWrite(  fbuf);
+        BenchMarkExecuter RandRunnableWriteParallel = new BenchMarkExecuter(objRandRunnableWrite, params);
+        
+        
+        
     }
     
     private static void benchRead( final int iType) throws FileNotFoundException {
@@ -118,12 +125,20 @@ public class BenchDiskMain {
         }
         final byte[] fbuf = buf;
         
+        params.setIsWriteOP(false);
         CustBuffBuffStreamCallableRead customBufferBufferedStreamCallable = new CustBuffBuffStreamCallableRead(  fbuf);
         BenchMarkExecuter benchCustomBufferBufferedStreamSeq = new BenchMarkExecuter(customBufferBufferedStreamCallable, params);
         
-//        CustBuffBuffStreamRunnableRead customBufferBufferedStreamRunnable = new CustBuffBuffStreamRunnableRead( fbuf);
-//        params.setNumberThreads(2);
-//        BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
+        RandCallableRead objRandCallableRead = new RandCallableRead(fbuf);
+        BenchMarkExecuter benchRandCallableRead = new BenchMarkExecuter(objRandCallableRead, params);
+        
+        params.setNumberThreads(2);
+        
+        CustBuffBuffStreamRunnableRead customBufferBufferedStreamRunnable = new CustBuffBuffStreamRunnableRead( fbuf);
+        BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
+        
+        RandRunnableRead objRandRunnableRead = new RandRunnableRead(fbuf);
+        BenchMarkExecuter benchRandParallel = new BenchMarkExecuter(objRandRunnableRead, params);
     }
     
 }
