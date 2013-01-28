@@ -22,8 +22,12 @@ public class RandCallableWrite implements Callable {
 
     @Override
     public Object call() throws Exception {
-        RandomAccessFile file = new RandomAccessFile(RandomUtils.getRandFileName(), "rw");
-        DiskBenchUtil.RandFileWrite(file, fbuf);
-        return null;
+        long overheadtime = 0;
+        long startfilemake = System.nanoTime();
+         RandomAccessFile file = new RandomAccessFile(RandomUtils.getRandFileName(), "rw");
+        overheadtime = System.nanoTime() - startfilemake;
+       
+        overheadtime += DiskBenchUtil.RandFileWrite(file, fbuf);
+        return overheadtime;
     }
 }

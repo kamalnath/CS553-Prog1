@@ -6,33 +6,39 @@ package DiskBenchmark;
 
 import BenchCommonUtils.RandomUtils;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author kamalnath_ng
  */
 public class DiskBenchUtil {
-  
-    public static void customBufferBufferedStreamWrite(OutputStream fos, int bufflen, byte[] buf) {
+
+    public static long customBufferBufferedStreamWrite(OutputStream fos, int bufflen, byte[] buf) {
+        long overheadtime = 0;
         try {
             fos.write(buf, 0, bufflen);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            long startfileclose = System.nanoTime();
             close(fos);
+            overheadtime = System.nanoTime() - startfileclose;
         }
+        return overheadtime;
     }
 
-    public static void customBufferBufferedStreamRead(InputStream fis, byte[] buf) {
+    public static long customBufferBufferedStreamRead(InputStream fis, byte[] buf) {
+        long overheadtime = 0;
         try {
             fis.read(buf);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            long startfileclose = System.nanoTime();
             close(fis);
+            overheadtime = System.nanoTime() - startfileclose;
         }
+        return overheadtime;
     }
 
     public static void close(Closeable closable) {
@@ -46,28 +52,39 @@ public class DiskBenchUtil {
 
     }
 
-    public static void RandFileRead(RandomAccessFile file, byte[] fbuf) {
+    public static long RandFileRead(RandomAccessFile file, byte[] fbuf) {
+        long overheadtime = 0;
         try {
-            int rand =RandomUtils.getRandomGenerator().nextInt((int)file.length());
+            long startfileclose = System.nanoTime();
+            int rand = RandomUtils.getRandomGenerator().nextInt((int) file.length());
+            overheadtime += System.nanoTime() - startfileclose;
             file.seek(rand);
             file.read(fbuf);
         } catch (IOException ex) {
             ex.printStackTrace();
-        }
-        finally {
+        } finally {
+            long startfileclose = System.nanoTime();
             close(file);
+            overheadtime += System.nanoTime() - startfileclose;
         }
+        return overheadtime;
     }
-    public static void RandFileWrite(RandomAccessFile file, byte[] fbuf) {
+
+    public static long RandFileWrite(RandomAccessFile file, byte[] fbuf) {
+        long overheadtime = 0;
         try {
-            int rand =RandomUtils.getRandomGenerator().nextInt((int)file.length());
+            long startfileclose = System.nanoTime();
+            int rand = RandomUtils.getRandomGenerator().nextInt(fbuf.length);
+            overheadtime += System.nanoTime() - startfileclose;
             file.seek(rand);
             file.write(fbuf);
         } catch (IOException ex) {
             ex.printStackTrace();
-        }
-        finally {
+        } finally {
+            long startfileclose = System.nanoTime();
             close(file);
+            overheadtime += System.nanoTime() - startfileclose;
         }
+        return overheadtime;
     }
 }

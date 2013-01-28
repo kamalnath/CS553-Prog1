@@ -24,7 +24,7 @@ public class BenchDiskMain {
     private static void benchText() throws FileNotFoundException {
         
 //        System.out.println("Start WRITE benchmark with little block (1 B)");
-//        benchWrite(1);
+        benchWrite(5);
 //        System.out.println("Start WRITE benchmark with medium block (1 KB)");
 //        benchWrite(2);
 //        System.out.println("Start WRITE benchmark with medium block (1 MB)");
@@ -66,9 +66,9 @@ public class BenchDiskMain {
                 bufflen = buf.length;
                 break;
             default:
-                params.setNumberMeasurements(1);
+                params.setNumberMeasurements(10);
                 params.setWarmupTime(1);
-                buf = new byte[1024 * 1024 * 400];
+                buf = new byte[1024 * 1024 * 200];
                  bufflen = buf.length;
                 break;
         }

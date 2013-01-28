@@ -14,23 +14,39 @@ import java.util.logging.Logger;
  *
  * @author USER
  */
-public class RandRunnableRead implements Runnable{
+public class RandRunnableRead implements MyRunnable {
+
     private byte[] fbuf;
     private static int i;
+    private long overheadtime;
 
     public RandRunnableRead(byte[] fbuf) {
         this.fbuf = fbuf;
     }
- 
+
     @Override
     public void run() {
         try {
-            RandomAccessFile file = new RandomAccessFile(RandomUtils.getFilepathRead()+i, "r");
+            long overheadtime = 0;
+            long startfilemake = System.nanoTime();
+            RandomAccessFile file = new RandomAccessFile(RandomUtils.getFilepathRead() + i, "r");
+            overheadtime = System.nanoTime() - startfilemake;
             i++;
-           DiskBenchUtil.RandFileRead(file, fbuf);
+            overheadtime += DiskBenchUtil.RandFileRead(file, fbuf);
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
+        } finally {
+            setOverheadtime(overheadtime);
         }
     }
-    
+
+    @Override
+    public long getOverheadtime() {
+        return overheadtime;
+    }
+
+    @Override
+    public void setOverheadtime(long time) {
+        overheadtime = time;
+    }
 }

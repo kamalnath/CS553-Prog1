@@ -17,11 +17,12 @@ import java.util.logging.Logger;
  *
  * @author kamalnath_ng
  */
-public class CustBuffBuffStreamRunnableWrite implements Runnable {
+public class CustBuffBuffStreamRunnableWrite implements MyRunnable {
 
     OutputStream fos;
     int ibufflen;
     byte[] fbuf;
+    private long overheadtime;
 
     public CustBuffBuffStreamRunnableWrite( int ibufflen, byte[] fbuf) {
         this.ibufflen = ibufflen;
@@ -31,10 +32,17 @@ public class CustBuffBuffStreamRunnableWrite implements Runnable {
     @Override
     public void run() {
         try {
+            long overheadtime = 0;
+            long startfilemake = System.nanoTime();
             fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-           DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen,  fbuf);
+            overheadtime = System.nanoTime() - startfilemake;
+            
+           overheadtime += DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen,  fbuf);
         } catch (FileNotFoundException ex) {
            ex.printStackTrace();
+        }
+        finally{
+            setOverheadtime(overheadtime);
         }
     }
 
@@ -63,6 +71,14 @@ public class CustBuffBuffStreamRunnableWrite implements Runnable {
     public void setIbufflen(int ibufflen) {
         this.ibufflen = ibufflen;
     }
-    
+    @Override
+    public long getOverheadtime() {
+        return overheadtime;
+    }
+
+    @Override
+    public void setOverheadtime(long time) {
+        overheadtime = time;
+    }
 }
 

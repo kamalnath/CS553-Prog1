@@ -12,18 +12,22 @@ import java.util.concurrent.Callable;
  *
  * @author USER
  */
-public class RandCallableRead implements Callable{
+public class RandCallableRead implements Callable {
 
-     byte[] fbuf;
+    byte[] fbuf;
 
     public RandCallableRead(byte[] fbuf) {
         this.fbuf = fbuf;
     }
+
     @Override
     public Object call() throws Exception {
-       RandomAccessFile file = new RandomAccessFile(RandomUtils.getFilepathRead(), "r");
-       DiskBenchUtil.RandFileRead(file, fbuf);
-        return null;
+        long overheadtime = 0;
+        long startfilemake = System.nanoTime();
+        RandomAccessFile file = new RandomAccessFile(RandomUtils.getFilepathRead(), "r");
+        overheadtime = System.nanoTime() - startfilemake;
+
+        overheadtime += DiskBenchUtil.RandFileRead(file, fbuf);
+        return overheadtime;
     }
-    
 }

@@ -2,12 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package BenchCommonUtils;     
+package BenchCommonUtils;
 
 import DiskBenchmark.CustBuffBuffStreamCallableRead;
 import DiskBenchmark.CustBuffBuffStreamCallableWrite;
 import DiskBenchmark.CustBuffBuffStreamRunnableRead;
 import DiskBenchmark.CustBuffBuffStreamRunnableWrite;
+import DiskBenchmark.MyRunnable;
+import DiskBenchmark.MyThread;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -27,11 +29,10 @@ public class BenchMarkExecuter {
     private static final int maxRestoreJvmLoops = 100;
     protected Measurement[] measurements;
     protected long numberOfThreads = 2;
-    
 
     public BenchMarkExecuter(Object job, Params params) {
         try {
-            
+
             perform(job, params);
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(BenchMarkExecuter.class.getName()).log(Level.SEVERE, null, ex);
@@ -54,7 +55,7 @@ public class BenchMarkExecuter {
                 System.out.println("Cleaning up ");
             }
         } finally {
-            //RandomUtils.fileCleanup();
+            RandomUtils.fileCleanup();
             cleanJvm();
         }
     }
@@ -126,31 +127,34 @@ public class BenchMarkExecuter {
 
     protected Measurement measure(long n) throws IllegalArgumentException, Exception {
         long t1 = -1;
-        
+        MyRunnable runnable;
+        long overheadtime = 0;
         if (task instanceof Callable) {
             Callable objCallable = (Callable) task;
             //objCallable = processCallableTask();
             t1 = timeNs();
-            objCallable.call();
+            overheadtime = (Long)objCallable.call();
         } else if (task instanceof Runnable) {
-            ArrayList<Thread> arrT = new ArrayList<Thread>();
+            ArrayList<MyThread> arrT = new ArrayList<MyThread>();
             //arrT = processRunnableTask(arrT);
-            Runnable runnable = (Runnable) task;
+            runnable = (MyRunnable) task;
             for (int i = 0; i < params.numberThreads; i++) {
-                    arrT.add(new Thread(runnable));
-                }
+                arrT.add(new MyThread(runnable));
+            }
             t1 = timeNs();
-            for (Thread tr : arrT) {
+            for (MyThread tr : arrT) {
                 tr.start();
             }
-            for (Thread tr : arrT) {
+            for (MyThread tr : arrT) {
                 tr.join();
+                overheadtime += tr.getObjMyRunnable().getOverheadtime();
             }
         } else {
             throw new IllegalStateException("task is neither a Callable or Runnable--this should never happen");
         }
+
         long t2 = timeNs();
-        return new Measurement(timeDiffSeconds(t1, t2));
+        return new Measurement(timeDiffSeconds(t1, (t2 - overheadtime)));
     }
 
     protected long timeNs() {
@@ -170,23 +174,23 @@ public class BenchMarkExecuter {
     }
 
     private ArrayList processRunnableTask(ArrayList<Thread> arrT) throws FileNotFoundException {
-                InputStream fis;
-                OutputStream fos;
+        InputStream fis;
+        OutputStream fos;
         if (params.isWriteOP) {
-                CustBuffBuffStreamRunnableWrite runnable = (CustBuffBuffStreamRunnableWrite) task;
-                for (int i = 0; i < 2; i++) {
-                    fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-                    runnable.setFos(fos);
-                    arrT.add(new Thread(runnable));
-                }
-            } else {
-                CustBuffBuffStreamRunnableRead runnable = (CustBuffBuffStreamRunnableRead) task;
-                for (int i = 0; i < params.numberThreads; i++) {
-                    fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()+i));
-                    runnable.setFis(fis);
-                    arrT.add(new Thread(runnable));
-                }
+            CustBuffBuffStreamRunnableWrite runnable = (CustBuffBuffStreamRunnableWrite) task;
+            for (int i = 0; i < 2; i++) {
+                fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+                runnable.setFos(fos);
+                arrT.add(new Thread(runnable));
             }
+        } else {
+            CustBuffBuffStreamRunnableRead runnable = (CustBuffBuffStreamRunnableRead) task;
+            for (int i = 0; i < params.numberThreads; i++) {
+                fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + i));
+                runnable.setFis(fis);
+                arrT.add(new Thread(runnable));
+            }
+        }
         return arrT;
     }
 
@@ -194,19 +198,19 @@ public class BenchMarkExecuter {
         OutputStream fos;
         CustBuffBuffStreamCallableWrite callableW;
         CustBuffBuffStreamCallableRead callableR;
-        InputStream fis ;
+        InputStream fis;
         if (params.isWriteOP) {
-                callableW = (CustBuffBuffStreamCallableWrite) task;
-                fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-                callableW.setFos(fos);
-                return  callableW;
-                
-            } else {
-                fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
-                callableR = (CustBuffBuffStreamCallableRead) task;
-                callableR.setFis(fis);
-                return  callableR;
-            }
-         
+            callableW = (CustBuffBuffStreamCallableWrite) task;
+            fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+            callableW.setFos(fos);
+            return callableW;
+
+        } else {
+            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
+            callableR = (CustBuffBuffStreamCallableRead) task;
+            callableR.setFis(fis);
+            return callableR;
+        }
+
     }
 }

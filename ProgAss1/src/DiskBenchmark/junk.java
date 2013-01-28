@@ -40,15 +40,25 @@ public class junk {
 //        }
 //        System.out.println("Main thread");
 
+        Long test = new Long(1000);
+        long t = test;
+         System.out.println(t);
+        //byte [] buf = new byte[1024 * 1024 * 1024];
          
-        RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file.txt", "rw");
-        int rand =RandomUtils.getRandomGenerator().nextInt((int)file.length());
-        int i=1;
-            
-            System.out.println("File length "+file.length());
-            rand = RandomUtils.getRandomGenerator().nextInt((int)file.length());
-            System.out.println(rand);
-        file.seek(rand);
+        RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file1.txt", "rw");
+        int rand =RandomUtils.getRandomGenerator().nextInt(1000);
+         System.out.println(rand);
+         rand =RandomUtils.getRandomGenerator().nextInt(1000);
+         System.out.println(rand);
+         rand =RandomUtils.getRandomGenerator().nextInt(1000);
+         System.out.println(rand);
+         
+//        int i=1;
+//            
+//            System.out.println("File length "+file.length());
+//            rand = RandomUtils.getRandomGenerator().nextInt((int)file.length());
+//            System.out.println(rand);
+        file.seek(10);
         file.write(("Hello World").getBytes());
         file.close();
         

@@ -23,9 +23,12 @@ public class CustBuffBuffStreamCallableWrite implements Callable {
 
     @Override
     public Object call() throws FileNotFoundException {
+        long overheadtime = 0;
+        long startfilemake = System.nanoTime();
         fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-        DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen, fbuf);
-        return null;
+        overheadtime = System.nanoTime() - startfilemake;
+        overheadtime+=DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen, fbuf);
+        return overheadtime;
     }
 
     public byte[] getFbuf() {

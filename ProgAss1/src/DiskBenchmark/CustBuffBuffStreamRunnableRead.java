@@ -6,25 +6,22 @@ package DiskBenchmark;
 
 import BenchCommonUtils.RandomUtils;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * 
+ *
  * @author kamalnath_ng
  */
-public class CustBuffBuffStreamRunnableRead implements Runnable {
+public class CustBuffBuffStreamRunnableRead implements MyRunnable {
 
     InputStream fis;
     byte[] fbuf;
     static int i;
+    long overheadtime = 0;
 
-    public CustBuffBuffStreamRunnableRead(  byte[] fbuf) {
+    public CustBuffBuffStreamRunnableRead(byte[] fbuf) {
         this.fbuf = fbuf;
     }
 
@@ -36,8 +33,6 @@ public class CustBuffBuffStreamRunnableRead implements Runnable {
         this.fis = fis;
     }
 
-    
-
     public byte[] getFbuf() {
         return fbuf;
     }
@@ -45,16 +40,30 @@ public class CustBuffBuffStreamRunnableRead implements Runnable {
     public void setFbuf(byte[] fbuf) {
         this.fbuf = fbuf;
     }
+
     @Override
     public void run() {
         try {
-            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()+i));
+            long overheadtime = 0;
+            long startfilemake = System.nanoTime();
+            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + i));
+            overheadtime = System.nanoTime() - startfilemake;
             i++;
-            DiskBenchUtil.customBufferBufferedStreamRead(fis,   fbuf);
+            overheadtime += DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);
         } catch (FileNotFoundException ex) {
-           ex.printStackTrace();
+            ex.printStackTrace();
+        }finally{
+            setOverheadtime(overheadtime);
         }
     }
-    
-}
 
+    @Override
+    public long getOverheadtime() {
+        return overheadtime;
+    }
+
+    @Override
+    public void setOverheadtime(long time) {
+        overheadtime = time;
+    }
+}
