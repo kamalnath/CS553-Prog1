@@ -44,6 +44,8 @@ public class BenchDiskMain {
         int bufflen = 0;
         switch (iType) {
             case 1:
+                params.setWarmupTime(10);
+                params.setNumberMeasurements(1000);
                 buf = new byte[1];
                 bufflen = 1;
                 break;

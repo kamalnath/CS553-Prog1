@@ -43,17 +43,18 @@ public class CustBuffBuffStreamRunnableRead implements MyRunnable {
 
     @Override
     public void run() {
+        long ovrheadtime = 0;
         try {
-            long overheadtime = 0;
+            
             long startfilemake = System.nanoTime();
             fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + i));
-            overheadtime = System.nanoTime() - startfilemake;
+            ovrheadtime = System.nanoTime() - startfilemake;
             i++;
-            overheadtime += DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);
+            ovrheadtime += DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }finally{
-            setOverheadtime(overheadtime);
+            setOverheadtime(ovrheadtime);
         }
     }
 

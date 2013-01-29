@@ -26,17 +26,18 @@ public class RandRunnableRead implements MyRunnable {
 
     @Override
     public void run() {
+        long ovrheadtime = 0;
         try {
-            long overheadtime = 0;
+            
             long startfilemake = System.nanoTime();
             RandomAccessFile file = new RandomAccessFile(RandomUtils.getFilepathRead() + i, "r");
-            overheadtime = System.nanoTime() - startfilemake;
+            ovrheadtime = System.nanoTime() - startfilemake;
             i++;
-            overheadtime += DiskBenchUtil.RandFileRead(file, fbuf);
+            ovrheadtime += DiskBenchUtil.RandFileRead(file, fbuf);
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         } finally {
-            setOverheadtime(overheadtime);
+            setOverheadtime(ovrheadtime);
         }
     }
 

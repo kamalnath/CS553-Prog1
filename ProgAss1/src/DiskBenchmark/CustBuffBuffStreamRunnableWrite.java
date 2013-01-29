@@ -31,18 +31,19 @@ public class CustBuffBuffStreamRunnableWrite implements MyRunnable {
 
     @Override
     public void run() {
+        long ovrheadtime = 0;
         try {
-            long overheadtime = 0;
+            
             long startfilemake = System.nanoTime();
             fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-            overheadtime = System.nanoTime() - startfilemake;
+            ovrheadtime = System.nanoTime() - startfilemake;
             
-           overheadtime += DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen,  fbuf);
+           ovrheadtime += DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen,  fbuf);
         } catch (FileNotFoundException ex) {
            ex.printStackTrace();
         }
         finally{
-            setOverheadtime(overheadtime);
+            setOverheadtime(ovrheadtime);
         }
     }
 

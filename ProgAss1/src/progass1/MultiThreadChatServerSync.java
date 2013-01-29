@@ -1,4 +1,4 @@
-package NetworkBench;
+package progass1;
 
 import java.io.DataInputStream;
 import java.io.PrintStream;
