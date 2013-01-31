@@ -4,13 +4,7 @@
  */
 package BenchCommonUtils;
 
-import DiskBenchmark.CustBuffBuffStreamCallableRead;
-import DiskBenchmark.CustBuffBuffStreamCallableWrite;
-import DiskBenchmark.CustBuffBuffStreamRunnableRead;
-import DiskBenchmark.CustBuffBuffStreamRunnableWrite;
-import DiskBenchmark.MyRunnable;
-import DiskBenchmark.MyThread;
-import NetworkBench.UDPEchoClientRunnable;
+import DiskBenchmark.*;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -33,7 +27,6 @@ public class BenchMarkExecuter {
 
     public BenchMarkExecuter(Object job, Params params) {
         try {
-
             perform(job, params);
         } catch (IllegalArgumentException ex) {
             Logger.getLogger(BenchMarkExecuter.class.getName()).log(Level.SEVERE, null, ex);
@@ -73,8 +66,6 @@ public class BenchMarkExecuter {
         } else {
             System.out.println(" Sequential Through put : " + (params.numberMeasurements / CalcSupport.sum(sampleSorted)));
         }
-
-
     }
 
     protected double[] getTimes() throws IllegalStateException {
@@ -98,7 +89,7 @@ public class BenchMarkExecuter {
     protected void warmupJvm() throws Exception {
         cleanJvm();
         long n = 1;
-        for (long start = System.nanoTime(); System.nanoTime() - start < params.getWarmupTime() * 1e9; n *= 2) {	// * 1e9 converts warmupTime to ns
+        for (int i=0;i<params.getWarmupTime() ; i ++) {	// * 1e9 converts warmupTime to ns
             measure(n);
         }
     }
@@ -155,7 +146,7 @@ public class BenchMarkExecuter {
         }
 
         long t2 = timeNs();
-        return new Measurement(timeDiffSeconds(t1, (t2 - overheadtime)));
+        return new Measurement(timeDiffSeconds(t1, (t2 - 0)));
     }
 
     protected long timeNs() {

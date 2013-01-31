@@ -28,6 +28,7 @@ public class RandRunnableWrite implements MyRunnable {
             long startfilemake = System.nanoTime();
             RandomAccessFile file = new RandomAccessFile(RandomUtils.getRandFileName(), "rw");
             ovrheadtime = System.nanoTime() - startfilemake;
+            //System.out.println("fbuf------" +fbuf.length);
             ovrheadtime += DiskBenchUtil.RandFileWrite(file, fbuf);
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();

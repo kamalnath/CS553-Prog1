@@ -40,11 +40,11 @@ public class junk {
 //        }
 //        System.out.println("Main thread");
 
-        Long test = new Long(1000);
-        long t = test;
-         System.out.println(t);
-        //byte [] buf = new byte[1024 * 1024 * 1024];
-         
+//        Long test = new Long(1000);
+//        long t = test;
+//         System.out.println(t);
+//        //byte [] buf = new byte[1024 * 1024 * 1024];
+//         
         RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file1.txt", "rw");
         int rand =RandomUtils.getRandomGenerator().nextInt(1000);
          System.out.println(rand);
@@ -58,12 +58,29 @@ public class junk {
 //            System.out.println("File length "+file.length());
 //            rand = RandomUtils.getRandomGenerator().nextInt((int)file.length());
 //            System.out.println(rand);
-        file.seek(10);
-        file.write(("Hello World").getBytes());
+        
+        byte[] buf = new byte[1024*1024];
+         rand = RandomUtils.getRandomGenerator().nextInt(buf.length);
+        file.seek(rand);
+        file.write(buf);
         file.close();
-        
-        
-         
+//        int i=5000;
+//        long startfileclose = System.nanoTime();
+//        while(i>0){
+//        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+//         byte[] buf =new byte[1024*1024];
+//        try {
+//            fos.write(buf, 0, buf.length);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            close(fos);
+//         
+//            //System.out.println(1/((System.nanoTime() - startfileclose)*1e-9));
+//        }
+//        i--;
+//        }
+//           System.out.println(1000/((System.nanoTime() - startfileclose)*1e-9));
     }
     private static final int BUFFER = 8192;
 

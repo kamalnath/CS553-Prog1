@@ -21,6 +21,15 @@ public class CustBuffBuffStreamRunnableRead implements MyRunnable {
     static int i;
     long overheadtime = 0;
 
+    public synchronized static int getI() {
+        if (i > 2) {
+            i = 0;
+        } else {
+            i++;
+        }
+        return i;
+    }
+
     public CustBuffBuffStreamRunnableRead(byte[] fbuf) {
         this.fbuf = fbuf;
     }
@@ -45,15 +54,16 @@ public class CustBuffBuffStreamRunnableRead implements MyRunnable {
     public void run() {
         long ovrheadtime = 0;
         try {
-            
+
             long startfilemake = System.nanoTime();
-            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + i));
+            
+            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + getI()));
             ovrheadtime = System.nanoTime() - startfilemake;
-            i++;
+
             ovrheadtime += DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
-        }finally{
+        } finally {
             setOverheadtime(ovrheadtime);
         }
     }

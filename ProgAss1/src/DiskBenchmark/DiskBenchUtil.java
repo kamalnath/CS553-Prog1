@@ -18,7 +18,7 @@ public class DiskBenchUtil {
         try {
             fos.write(buf, 0, bufflen);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             long startfileclose = System.nanoTime();
             close(fos);
@@ -35,7 +35,7 @@ public class DiskBenchUtil {
             e.printStackTrace();
         } finally {
             long startfileclose = System.nanoTime();
-            close(fis);
+            //close(fis);
             overheadtime = System.nanoTime() - startfileclose;
         }
         return overheadtime;
@@ -64,7 +64,7 @@ public class DiskBenchUtil {
             ex.printStackTrace();
         } finally {
             long startfileclose = System.nanoTime();
-            close(file);
+            //close(file);
             overheadtime += System.nanoTime() - startfileclose;
         }
         return overheadtime;

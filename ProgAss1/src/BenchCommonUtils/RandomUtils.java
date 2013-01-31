@@ -18,7 +18,12 @@ public class RandomUtils {
 
     private static final String filepathWrite = "D:/Data/tmp/write/";
     private static final String filepathRead = "D:/Data/read/FileRead";
- 
+    private static final String filepathRandRead = "D:/Data/read/RandFileRead";
+
+    public static String getFilepathRandRead() {
+        return filepathRandRead;
+    }
+    
     public static String getFilepathRead() {
         return filepathRead;
     }
@@ -36,7 +41,7 @@ public class RandomUtils {
     }
 
     public static String getRandFileName() {
-        String name = filepathWrite + System.currentTimeMillis() + "" + randomGenerator.nextLong();
+        String name = filepathWrite + "File_"+getRandomGenerator().nextInt(1000000)+System.currentTimeMillis();
         return name;
     }
     

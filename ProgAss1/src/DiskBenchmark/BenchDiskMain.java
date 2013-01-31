@@ -24,7 +24,8 @@ public class BenchDiskMain {
     private static void benchText() throws FileNotFoundException {
         
 //        System.out.println("Start WRITE benchmark with little block (1 B)");
-        benchWrite(5);
+        benchWrite(3);
+
 //        System.out.println("Start WRITE benchmark with medium block (1 KB)");
 //        benchWrite(2);
 //        System.out.println("Start WRITE benchmark with medium block (1 MB)");
@@ -34,7 +35,7 @@ public class BenchDiskMain {
         
 //            benchRead(1);
 //            benchRead(2);
-//            benchRead(3);
+            benchRead(3);
 //            benchRead(4);
     }
 
@@ -56,7 +57,7 @@ public class BenchDiskMain {
                 bufflen = 512;
                 break;
             case 3:
-                params.setNumberMeasurements(1000);
+                params.setNumberMeasurements(500);
                 params.setWarmupTime(10);
                 buf = new byte[1024 * 1024];
                 bufflen = buf.length;
@@ -77,6 +78,7 @@ public class BenchDiskMain {
         final int ibufflen = bufflen;
         final byte[] fbuf = buf;
         params.setIsWriteOP(true);
+        
         CustBuffBuffStreamCallableWrite customBufferBufferedStreamCallable = new CustBuffBuffStreamCallableWrite( ibufflen, fbuf);
         BenchMarkExecuter benchCustomBufferBufferedStreamSeq = new BenchMarkExecuter(customBufferBufferedStreamCallable, params);
         
@@ -86,7 +88,6 @@ public class BenchDiskMain {
         params.setNumberThreads(2);
         CustBuffBuffStreamRunnableWrite customBufferBufferedStreamRunnable = new CustBuffBuffStreamRunnableWrite( ibufflen, fbuf);
         BenchMarkExecuter benchCustomBufferBufferedStreamParallel = new BenchMarkExecuter(customBufferBufferedStreamRunnable, params);
-        
         RandRunnableWrite objRandRunnableWrite = new RandRunnableWrite(  fbuf);
         BenchMarkExecuter RandRunnableWriteParallel = new BenchMarkExecuter(objRandRunnableWrite, params);
         
@@ -110,8 +111,8 @@ public class BenchDiskMain {
                 buf = new byte[512];
                 break; 
             case 3:
-                params.setNumberMeasurements(1000);
-                params.setWarmupTime(10);
+                params.setNumberMeasurements(300);
+                params.setWarmupTime(150);
                 buf = new byte[1024 * 1024];
                 break;
             case 4:
