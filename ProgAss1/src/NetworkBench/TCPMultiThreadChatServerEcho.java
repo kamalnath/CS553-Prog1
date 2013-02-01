@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 /*
  * A chat server that delivers public and private messages.
  */
-public class MultiThreadChatServerEcho {
+public class TCPMultiThreadChatServerEcho {
 
     // The server socket.
     private static ServerSocket serverSocket = null;
