@@ -16,9 +16,11 @@ public class RandRunnableWrite implements MyRunnable {
 
     private byte[] fbuf;
     private long overheadtime;
+    String filePath;
 
-    public RandRunnableWrite(byte[] fbuf) {
+    public RandRunnableWrite(byte[] fbuf,String filePath) {
         this.fbuf = fbuf;
+        this.filePath= filePath;
     }
 
     @Override
@@ -26,7 +28,7 @@ public class RandRunnableWrite implements MyRunnable {
         long ovrheadtime = 0;
         try {
             long startfilemake = System.nanoTime();
-            RandomAccessFile file = new RandomAccessFile(RandomUtils.getRandFileName(), "rw");
+            RandomAccessFile file = new RandomAccessFile(filePath+RandomUtils.getRandFileName(), "rw");
             ovrheadtime = System.nanoTime() - startfilemake;
             //System.out.println("fbuf------" +fbuf.length);
             ovrheadtime += DiskBenchUtil.RandFileWrite(file, fbuf);

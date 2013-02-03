@@ -32,10 +32,10 @@ public class DiskBenchUtil {
         try {
             fis.read(buf);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             long startfileclose = System.nanoTime();
-            //close(fis);
+            close(fis);
             overheadtime = System.nanoTime() - startfileclose;
         }
         return overheadtime;
@@ -60,11 +60,13 @@ public class DiskBenchUtil {
             overheadtime += System.nanoTime() - startfileclose;
             file.seek(rand);
             file.read(fbuf);
+            
+            
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
             long startfileclose = System.nanoTime();
-            //close(file);
+            close(file);
             overheadtime += System.nanoTime() - startfileclose;
         }
         return overheadtime;

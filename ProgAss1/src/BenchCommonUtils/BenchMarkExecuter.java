@@ -46,10 +46,10 @@ public class BenchMarkExecuter {
                 warmupJvm();
                 doMeasurements();
                 calculateStats();
-                System.out.println("Cleaning up ");
+                
             }
         } finally {
-            RandomUtils.fileCleanup();
+            RandomUtils.fileCleanup(params.getTempPath());
             cleanJvm();
         }
     }
@@ -58,13 +58,13 @@ public class BenchMarkExecuter {
         double[] times = getTimes();
         double[] sampleSorted = times.clone();	// must make a clone since do not want the sort side effect to affect the caller
         Arrays.sort(sampleSorted);
-        System.out.print(" Latency Median : " + CalcSupport.median(sampleSorted));
-        System.out.print("  Mean : " + CalcSupport.mean(sampleSorted));
+        System.out.print("		LATENCY  : second(s)/operation [ min :"+sampleSorted[0]+" | max : "+sampleSorted[sampleSorted.length-1]+" | median : " + CalcSupport.median(sampleSorted));
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) +" ]  ");
 
         if (task instanceof Runnable) {
-            System.out.println(" Parallel Through put : " + (params.numberMeasurements * 2 / CalcSupport.sum(sampleSorted)));
+            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements * 2 * params.getFactor())/ CalcSupport.sum(sampleSorted)));
         } else {
-            System.out.println(" Sequential Through put : " + (params.numberMeasurements / CalcSupport.sum(sampleSorted)));
+            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements *params.getFactor())/ CalcSupport.sum(sampleSorted)));
         }
     }
 
@@ -165,44 +165,44 @@ public class BenchMarkExecuter {
         return diff * 1e-9;
     }
 
-    private ArrayList processRunnableTask(ArrayList<Thread> arrT) throws FileNotFoundException {
-        InputStream fis;
-        OutputStream fos;
-        if (params.isWriteOP) {
-            CustBuffBuffStreamRunnableWrite runnable = (CustBuffBuffStreamRunnableWrite) task;
-            for (int i = 0; i < 2; i++) {
-                fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-                runnable.setFos(fos);
-                arrT.add(new Thread(runnable));
-            }
-        } else {
-            CustBuffBuffStreamRunnableRead runnable = (CustBuffBuffStreamRunnableRead) task;
-            for (int i = 0; i < params.numberThreads; i++) {
-                fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + i));
-                runnable.setFis(fis);
-                arrT.add(new Thread(runnable));
-            }
-        }
-        return arrT;
-    }
-
-    private Callable processCallableTask() throws FileNotFoundException {
-        OutputStream fos;
-        CustBuffBuffStreamCallableWrite callableW;
-        CustBuffBuffStreamCallableRead callableR;
-        InputStream fis;
-        if (params.isWriteOP) {
-            callableW = (CustBuffBuffStreamCallableWrite) task;
-            fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-            callableW.setFos(fos);
-            return callableW;
-
-        } else {
-            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
-            callableR = (CustBuffBuffStreamCallableRead) task;
-            callableR.setFis(fis);
-            return callableR;
-        }
-
-    }
+//    private ArrayList processRunnableTask(ArrayList<Thread> arrT) throws FileNotFoundException {
+//        InputStream fis;
+//        OutputStream fos;
+//        if (params.isWriteOP) {
+//            CustBuffBuffStreamRunnableWrite runnable = (CustBuffBuffStreamRunnableWrite) task;
+//            for (int i = 0; i < 2; i++) {
+//                fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+//                runnable.setFos(fos);
+//                arrT.add(new Thread(runnable));
+//            }
+//        } else {
+//            CustBuffBuffStreamRunnableRead runnable = (CustBuffBuffStreamRunnableRead) task;
+//            for (int i = 0; i < params.numberThreads; i++) {
+//                fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + i));
+//                runnable.setFis(fis);
+//                arrT.add(new Thread(runnable));
+//            }
+//        }
+//        return arrT;
+//    }
+//
+//    private Callable processCallableTask() throws FileNotFoundException {
+//        OutputStream fos;
+//        CustBuffBuffStreamCallableWrite callableW;
+//        CustBuffBuffStreamCallableRead callableR;
+//        InputStream fis;
+//        if (params.isWriteOP) {
+//            callableW = (CustBuffBuffStreamCallableWrite) task;
+//            fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+//            callableW.setFos(fos);
+//            return callableW;
+//
+//        } else {
+//            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
+//            callableR = (CustBuffBuffStreamCallableRead) task;
+//            callableR.setFis(fis);
+//            return callableR;
+//        }
+//
+//    }
 }

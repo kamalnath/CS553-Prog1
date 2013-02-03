@@ -36,5 +36,7 @@ public class CalcSupport {
 		for (double d : numbers) sum += d;
 		return sum;
 	}
+
+    
    
 }

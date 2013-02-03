@@ -17,6 +17,17 @@ public class Params implements Cloneable {
     protected double confidenceLevel = 0.95;
     protected long numberActions = 1;
     protected long numberThreads = 1;
+    
+    private String tempPath;
+    private long factor;
+
+    public long getFactor() {
+        return factor;
+    }
+
+    public void setTempPath(String tempPath) {
+        this.tempPath = tempPath;
+    }
 
     public long getNumberThreads() {
         return numberThreads;
@@ -157,5 +168,13 @@ public class Params implements Cloneable {
         hash = 23 * hash + (int) (Double.doubleToLongBits(this.confidenceLevel) ^ (Double.doubleToLongBits(this.confidenceLevel) >>> 32));
         hash = 23 * hash + (int) (this.numberActions ^ (this.numberActions >>> 32));
         return hash;
+    }
+
+    String getTempPath() {
+        return tempPath;
+    }
+
+    public void setFactor(long i) {
+       this.factor=i;
     }
 }

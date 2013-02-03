@@ -15,10 +15,16 @@ import java.util.Random;
  *
  */
 public class RandomUtils {
+    
+    private static  String filepathWrite ="/write/";
+    private static  String filepathRead = "/FileRead";
+    private static  String filepathRandRead = "/RandFileRead";
 
-    private static final String filepathWrite = "D:/Data/tmp/write/";
-    private static final String filepathRead = "D:/Data/read/FileRead";
-    private static final String filepathRandRead = "D:/Data/read/RandFileRead";
+    public static String getFilepathWrite() {
+        return filepathWrite;
+    }
+
+    
 
     public static String getFilepathRandRead() {
         return filepathRandRead;
@@ -45,8 +51,8 @@ public class RandomUtils {
         return name;
     }
     
-    public static void fileCleanup(){
-        File file = new File(filepathWrite  )   ;     
+    public static void fileCleanup(String path){
+        File file = new File(path+filepathWrite  )   ;     
         String[] myFiles;      
             if(file.isDirectory()){  
                 myFiles = file.list();  

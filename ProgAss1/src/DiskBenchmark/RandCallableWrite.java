@@ -15,16 +15,18 @@ import java.util.concurrent.Callable;
 public class RandCallableWrite implements Callable {
 
     private byte[] fbuf;
+    String filePath;
 
-    public RandCallableWrite(byte[] fbuf) {
+    public RandCallableWrite(byte[] fbuf,String filePath) {
         this.fbuf = fbuf;
+        this.filePath= filePath;
     }
 
     @Override
     public Object call() throws Exception {
         long overheadtime = 0;
         long startfilemake = System.nanoTime();
-         RandomAccessFile file = new RandomAccessFile(RandomUtils.getRandFileName(), "rw");
+         RandomAccessFile file = new RandomAccessFile(filePath+RandomUtils.getRandFileName(), "rw");
         overheadtime = System.nanoTime() - startfilemake;
        
         overheadtime += DiskBenchUtil.RandFileWrite(file, fbuf);

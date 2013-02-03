@@ -23,10 +23,12 @@ public class CustBuffBuffStreamRunnableWrite implements MyRunnable {
     int ibufflen;
     byte[] fbuf;
     private long overheadtime;
+    String filePath;
 
-    public CustBuffBuffStreamRunnableWrite( int ibufflen, byte[] fbuf) {
+    public CustBuffBuffStreamRunnableWrite( int ibufflen, byte[] fbuf,String filePath) {
         this.ibufflen = ibufflen;
         this.fbuf = fbuf;
+        this.filePath= filePath;
     }
 
     @Override
@@ -34,7 +36,7 @@ public class CustBuffBuffStreamRunnableWrite implements MyRunnable {
         long ovrheadtime = 0;
         try {
             long startfilemake = System.nanoTime();
-            fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+            fos = new BufferedOutputStream(new FileOutputStream(filePath+RandomUtils.getRandFileName()));
             ovrheadtime = System.nanoTime() - startfilemake;
             ovrheadtime += DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen,  fbuf);
         } catch (FileNotFoundException ex) {

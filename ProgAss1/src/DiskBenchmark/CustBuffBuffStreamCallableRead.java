@@ -20,6 +20,7 @@ public class CustBuffBuffStreamCallableRead implements Callable {
 
     InputStream fis;
     byte[] fbuf;
+    String filePath;
 
     public InputStream getFis() {
         return fis;
@@ -29,8 +30,9 @@ public class CustBuffBuffStreamCallableRead implements Callable {
         this.fis = fis;
     }
 
-    public CustBuffBuffStreamCallableRead(byte[] fbuf) {
+    public CustBuffBuffStreamCallableRead(byte[] fbuf,String filePath) {
         this.fbuf = fbuf;
+        this.filePath =filePath;
     }
 
     public byte[] getFbuf() {
@@ -45,7 +47,7 @@ public class CustBuffBuffStreamCallableRead implements Callable {
     public Object call() throws FileNotFoundException {
         long overheadtime = 0;
         long startfilemake = System.nanoTime();
-        fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
+        fis = new BufferedInputStream(new FileInputStream(filePath+RandomUtils.getFilepathRead()));
         overheadtime = System.nanoTime() - startfilemake;
         overheadtime += DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);
         return overheadtime;

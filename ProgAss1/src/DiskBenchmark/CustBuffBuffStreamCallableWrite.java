@@ -20,12 +20,13 @@ public class CustBuffBuffStreamCallableWrite implements Callable {
     OutputStream fos;
     int ibufflen;
     byte[] fbuf;
+    String filePath;
 
     @Override
     public Object call() throws FileNotFoundException {
         long overheadtime = 0;
         long startfilemake = System.nanoTime();
-        fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
+        fos = new BufferedOutputStream(new FileOutputStream(filePath+RandomUtils.getRandFileName()));
         overheadtime = System.nanoTime() - startfilemake;
         overheadtime+=DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen, fbuf);
         return overheadtime;
@@ -55,9 +56,10 @@ public class CustBuffBuffStreamCallableWrite implements Callable {
         this.ibufflen = ibufflen;
     }
 
-    public CustBuffBuffStreamCallableWrite( int ibufflen, byte[] fbuf) {
+    public CustBuffBuffStreamCallableWrite( int ibufflen, byte[] fbuf,String filePath) {
         this.ibufflen = ibufflen;
         this.fbuf = fbuf;
+        this.filePath =filePath;
     }
     
 

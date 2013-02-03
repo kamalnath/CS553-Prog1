@@ -19,7 +19,7 @@ public class RandRunnableRead implements MyRunnable {
     private byte[] fbuf;
     private static int i;
     private long overheadtime;
-
+    String filePath;
     public synchronized static int getI() {
         if (i > 2) {
             i = 0;
@@ -29,8 +29,9 @@ public class RandRunnableRead implements MyRunnable {
         
         return i;
     }
-    public RandRunnableRead(byte[] fbuf) {
+    public RandRunnableRead(byte[] fbuf,String filePath) {
         this.fbuf = fbuf;
+        this.filePath= filePath;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class RandRunnableRead implements MyRunnable {
         long ovrheadtime = 0;
         try {
             long startfilemake = System.nanoTime();
-            RandomAccessFile file = new RandomAccessFile(RandomUtils.getFilepathRandRead() + getI(), "r");
+            RandomAccessFile file = new RandomAccessFile(filePath+RandomUtils.getFilepathRandRead() + getI(), "r");
             ovrheadtime = System.nanoTime() - startfilemake;
             ovrheadtime += DiskBenchUtil.RandFileRead(file, fbuf);
         } catch (FileNotFoundException ex) {

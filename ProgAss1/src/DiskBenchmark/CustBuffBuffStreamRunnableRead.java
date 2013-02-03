@@ -20,6 +20,7 @@ public class CustBuffBuffStreamRunnableRead implements MyRunnable {
     byte[] fbuf;
     static int i;
     long overheadtime = 0;
+    String filePath;
 
     public synchronized static int getI() {
         if (i > 2) {
@@ -30,8 +31,9 @@ public class CustBuffBuffStreamRunnableRead implements MyRunnable {
         return i;
     }
 
-    public CustBuffBuffStreamRunnableRead(byte[] fbuf) {
+    public CustBuffBuffStreamRunnableRead(byte[] fbuf,String filePath) {
         this.fbuf = fbuf;
+        this.filePath=filePath;
     }
 
     public InputStream getFis() {
@@ -57,7 +59,7 @@ public class CustBuffBuffStreamRunnableRead implements MyRunnable {
 
             long startfilemake = System.nanoTime();
             
-            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + getI()));
+            fis = new BufferedInputStream(new FileInputStream(filePath+RandomUtils.getFilepathRead() + getI()));
             ovrheadtime = System.nanoTime() - startfilemake;
 
             ovrheadtime += DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);

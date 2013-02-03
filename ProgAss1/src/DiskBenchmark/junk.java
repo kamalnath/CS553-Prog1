@@ -18,6 +18,11 @@ import java.util.Random;
 public class junk {
 
     public static void main(String[] args) throws FileNotFoundException, IOException, InterruptedException {
+        
+         byte[] blockmembuf = new byte[1024 * 1024 * 950];
+        
+          
+        
 //        Runnable customBufferBufferedStreamRunnable = new Runnable() {
 //            @Override
 //            public void run() {
@@ -45,7 +50,7 @@ public class junk {
 //         System.out.println(t);
 //        //byte [] buf = new byte[1024 * 1024 * 1024];
 //         
-        RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file1.txt", "rw");
+        //RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file1.txt", "rw");
         int rand =RandomUtils.getRandomGenerator().nextInt(1000);
          System.out.println(rand);
          rand =RandomUtils.getRandomGenerator().nextInt(1000);
@@ -53,17 +58,38 @@ public class junk {
          rand =RandomUtils.getRandomGenerator().nextInt(1000);
          System.out.println(rand);
          
+         
+        
+        
+        System.out.println(RandomUtils.getFilepathRandRead());     
+//        File newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathRead());
+//        newFolder.mkdirs();
+//        newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathRandRead());
+//        newFolder.mkdirs();
+//        newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathWrite());
+//        newFolder.mkdirs();
+//        
+//        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream("/media/D/tmp"+RandomUtils.getRandFileName()));
+//         byte[] buf =new byte[1024*1024];
+//        try {
+//            fos.write(buf, 0, buf.length);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            close(fos);
+//        }
+         
 //        int i=1;
 //            
 //            System.out.println("File length "+file.length());
 //            rand = RandomUtils.getRandomGenerator().nextInt((int)file.length());
 //            System.out.println(rand);
         
-        byte[] buf = new byte[1024*1024];
-         rand = RandomUtils.getRandomGenerator().nextInt(buf.length);
-        file.seek(rand);
-        file.write(buf);
-        file.close();
+//        byte[] buf = new byte[1024*1024];
+//         rand = RandomUtils.getRandomGenerator().nextInt(buf.length);
+//        file.seek(rand);
+//        file.write(buf);
+//        file.close();
 //        int i=5000;
 //        long startfileclose = System.nanoTime();
 //        while(i>0){
