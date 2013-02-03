@@ -19,11 +19,7 @@ public class DiskBenchUtil {
             fos.write(buf, 0, bufflen);
         } catch (Exception e) {
             //e.printStackTrace();
-        } finally {
-            long startfileclose = System.nanoTime();
-            close(fos);
-            overheadtime = System.nanoTime() - startfileclose;
-        }
+        } 
         return overheadtime;
     }
 
@@ -32,7 +28,7 @@ public class DiskBenchUtil {
         try {
             fis.read(buf);
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         } finally {
             long startfileclose = System.nanoTime();
             close(fis);
@@ -56,7 +52,7 @@ public class DiskBenchUtil {
         long overheadtime = 0;
         try {
             long startfileclose = System.nanoTime();
-            int rand = RandomUtils.getRandomGenerator().nextInt((int) file.length());
+            int rand = RandomUtils.getRandomGenerator().nextInt((int) fbuf.length);
             overheadtime += System.nanoTime() - startfileclose;
             file.seek(rand);
             file.read(fbuf);
@@ -75,18 +71,12 @@ public class DiskBenchUtil {
     public static long RandFileWrite(RandomAccessFile file, byte[] fbuf) {
         long overheadtime = 0;
         try {
-            long startfileclose = System.nanoTime();
             int rand = RandomUtils.getRandomGenerator().nextInt(fbuf.length);
-            overheadtime += System.nanoTime() - startfileclose;
             file.seek(rand);
             file.write(fbuf);
         } catch (IOException ex) {
             ex.printStackTrace();
-        } finally {
-            long startfileclose = System.nanoTime();
-            close(file);
-            overheadtime += System.nanoTime() - startfileclose;
-        }
+        } 
         return overheadtime;
     }
 }

@@ -6,6 +6,7 @@ package DiskBenchmark;
 
 import BenchCommonUtils.RandomUtils;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,25 +27,21 @@ public class CustBuffBuffStreamRunnableWrite implements MyRunnable {
     String filePath;
 
     public CustBuffBuffStreamRunnableWrite( int ibufflen, byte[] fbuf,String filePath) {
-        this.ibufflen = ibufflen;
-        this.fbuf = fbuf;
-        this.filePath= filePath;
+        try {
+            this.ibufflen = ibufflen;
+            this.fbuf = fbuf;
+            this.filePath= filePath;
+            fos = new BufferedOutputStream(new FileOutputStream(filePath+RandomUtils.getRandFileName()));
+        } catch (FileNotFoundException ex) {
+           ex.printStackTrace();
+        }
     }
 
     @Override
     public void run() {
         long ovrheadtime = 0;
-        try {
-            long startfilemake = System.nanoTime();
-            fos = new BufferedOutputStream(new FileOutputStream(filePath+RandomUtils.getRandFileName()));
-            ovrheadtime = System.nanoTime() - startfilemake;
-            ovrheadtime += DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen,  fbuf);
-        } catch (FileNotFoundException ex) {
-           ex.printStackTrace();
-        }
-        finally{
+            DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen,  fbuf);
             setOverheadtime(ovrheadtime);
-        }
     }
 
     public OutputStream getFos() {
@@ -81,5 +78,16 @@ public class CustBuffBuffStreamRunnableWrite implements MyRunnable {
     public void setOverheadtime(long time) {
         overheadtime = time;
     }
+
+    @Override
+    public MyRunnable clone() {
+       return new CustBuffBuffStreamRunnableWrite(ibufflen, fbuf, filePath);
+    }
+
+    @Override
+    public Closeable getClose() {
+        return fos;
+    }
+    
 }
 

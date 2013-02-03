@@ -4,6 +4,8 @@
  */
 package DiskBenchmark;
 
+import java.io.Closeable;
+
 /**
  *
  * @author USER
@@ -12,4 +14,8 @@ public interface MyRunnable extends Runnable{
      
     long getOverheadtime();
     void setOverheadtime(long time);
+    MyRunnable clone();
+
+    public Closeable getClose();
+ 
 }

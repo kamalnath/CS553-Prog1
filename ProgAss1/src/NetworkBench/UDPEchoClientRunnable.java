@@ -1,6 +1,7 @@
 package NetworkBench;
 
 import DiskBenchmark.MyRunnable;
+import DiskBenchmark.RandRunnableRead;
 import java.io.*;
 import java.net.*;
 
@@ -61,5 +62,15 @@ public class UDPEchoClientRunnable implements MyRunnable {
     @Override
     public void setOverheadtime(long time) {
        this.overheadtime=0;
+    }
+
+    @Override
+    public MyRunnable clone() {
+        return new UDPEchoClientRunnable(sendData.length );
+    }
+
+    @Override
+    public Closeable getClose() {
+      return null;
     }
 }

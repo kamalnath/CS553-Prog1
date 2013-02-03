@@ -13,14 +13,15 @@ import java.io.OutputStream;
 import java.util.concurrent.Callable;
 
 /**
- *
+ *   
  * @author kamalnath_ng
  */
-public class CustBuffBuffStreamCallableRead implements Callable {
+public class CustBuffBuffStreamCallableRead implements MyCallable {
 
     InputStream fis;
     byte[] fbuf;
     String filePath;
+    static int i;
 
     public InputStream getFis() {
         return fis;
@@ -30,9 +31,9 @@ public class CustBuffBuffStreamCallableRead implements Callable {
         this.fis = fis;
     }
 
-    public CustBuffBuffStreamCallableRead(byte[] fbuf,String filePath) {
+    public CustBuffBuffStreamCallableRead(byte[] fbuf, String filePath) {
         this.fbuf = fbuf;
-        this.filePath =filePath;
+        this.filePath = filePath;
     }
 
     public byte[] getFbuf() {
@@ -47,9 +48,19 @@ public class CustBuffBuffStreamCallableRead implements Callable {
     public Object call() throws FileNotFoundException {
         long overheadtime = 0;
         long startfilemake = System.nanoTime();
-        fis = new BufferedInputStream(new FileInputStream(filePath+RandomUtils.getFilepathRead()));
+        fis = new BufferedInputStream(new FileInputStream(filePath + RandomUtils.getFilepathRead() + getI()));
         overheadtime = System.nanoTime() - startfilemake;
         overheadtime += DiskBenchUtil.customBufferBufferedStreamRead(fis, fbuf);
         return overheadtime;
+    }
+
+    public synchronized static int getI() {
+        if (i > 2) {
+            i = 0;
+        } else {
+            i++;
+        }
+
+        return i;
     }
 }

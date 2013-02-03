@@ -5,6 +5,7 @@
 package DiskBenchmark;
 
 import BenchCommonUtils.RandomUtils;
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.util.logging.Level;
@@ -57,5 +58,15 @@ public class RandRunnableRead implements MyRunnable {
     @Override
     public void setOverheadtime(long time) {
         overheadtime = time;
+    }
+
+    @Override
+    public MyRunnable clone() {
+        return new RandRunnableRead( fbuf, filePath);
+    }
+
+    @Override
+    public Closeable getClose() {
+        return null;
     }
 }

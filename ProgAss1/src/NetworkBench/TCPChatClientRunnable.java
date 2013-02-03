@@ -9,6 +9,7 @@ import DiskBenchmark.MyRunnable;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
@@ -69,4 +70,16 @@ public static void main(String[] args) throws Exception {
     public void setOverheadtime(long time) {
         this.overheadtime = time;
     }
+
+    @Override
+    public MyRunnable clone() {
+        return new TCPChatClientRunnable( sendData.length);
+    }
+
+    @Override
+    public Closeable getClose() {
+        return null;
+    }
+
+   
 }

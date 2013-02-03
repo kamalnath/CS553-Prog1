@@ -10,12 +10,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author kamalnath_ng
  */ 
-public class CustBuffBuffStreamCallableWrite implements Callable {
+public class CustBuffBuffStreamCallableWrite implements MyCallable {
 
     OutputStream fos;
     int ibufflen;
@@ -24,12 +26,8 @@ public class CustBuffBuffStreamCallableWrite implements Callable {
 
     @Override
     public Object call() throws FileNotFoundException {
-        long overheadtime = 0;
-        long startfilemake = System.nanoTime();
-        fos = new BufferedOutputStream(new FileOutputStream(filePath+RandomUtils.getRandFileName()));
-        overheadtime = System.nanoTime() - startfilemake;
-        overheadtime+=DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen, fbuf);
-        return overheadtime;
+        DiskBenchUtil.customBufferBufferedStreamWrite(fos, ibufflen, fbuf);
+        return 0;
     }
 
     public byte[] getFbuf() {
@@ -57,9 +55,14 @@ public class CustBuffBuffStreamCallableWrite implements Callable {
     }
 
     public CustBuffBuffStreamCallableWrite( int ibufflen, byte[] fbuf,String filePath) {
-        this.ibufflen = ibufflen;
-        this.fbuf = fbuf;
-        this.filePath =filePath;
+        try {
+            this.ibufflen = ibufflen;
+            this.fbuf = fbuf;
+            this.filePath =filePath;
+            fos = new BufferedOutputStream(new FileOutputStream(filePath+RandomUtils.getRandFileName()));
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
     }
     
 

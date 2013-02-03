@@ -4,11 +4,13 @@
  */
 package DiskBenchmark;
 
+import BenchCommonUtils.CalcSupport;
 import BenchCommonUtils.RandomUtils;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -19,94 +21,127 @@ public class junk {
 
     public static void main(String[] args) throws FileNotFoundException, IOException, InterruptedException {
         
-         byte[] blockmembuf = new byte[1024 * 1024 * 950];
-        
-          
-        
-//        Runnable customBufferBufferedStreamRunnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                for (int i = 0; i < 2; i++) {
-//                    System.out.println("child thread");
-//                }
-//
-//            }
-//        };
-//        ArrayList<Thread> arrT = new ArrayList<Thread>();
-//        for (int i = 0; i < 2; i++) {
-//            arrT.add(new Thread(customBufferBufferedStreamRunnable));
-//        }
-//        for (Thread tr : arrT) {
-//            tr.start();
-//        }
-//
-//        for (Thread tr : arrT) {
-//            tr.join();
-//        }
-//        System.out.println("Main thread");
-
-//        Long test = new Long(1000);
-//        long t = test;
-//         System.out.println(t);
-//        //byte [] buf = new byte[1024 * 1024 * 1024];
-//         
-        //RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file1.txt", "rw");
-        int rand =RandomUtils.getRandomGenerator().nextInt(1000);
-         System.out.println(rand);
-         rand =RandomUtils.getRandomGenerator().nextInt(1000);
-         System.out.println(rand);
-         rand =RandomUtils.getRandomGenerator().nextInt(1000);
-         System.out.println(rand);
-         
-         
-        
-        
-        System.out.println(RandomUtils.getFilepathRandRead());     
-//        File newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathRead());
-//        newFolder.mkdirs();
-//        newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathRandRead());
-//        newFolder.mkdirs();
-//        newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathWrite());
-//        newFolder.mkdirs();
+//         byte[] blockmembuf = new byte[1024 * 1024 * 950];
 //        
-//        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream("/media/D/tmp"+RandomUtils.getRandFileName()));
-//         byte[] buf =new byte[1024*1024];
-//        try {
-//            fos.write(buf, 0, buf.length);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            close(fos);
-//        }
-         
-//        int i=1;
-//            
-//            System.out.println("File length "+file.length());
-//            rand = RandomUtils.getRandomGenerator().nextInt((int)file.length());
-//            System.out.println(rand);
-        
-//        byte[] buf = new byte[1024*1024];
+//          
+//        
+////        Runnable customBufferBufferedStreamRunnable = new Runnable() {
+////            @Override
+////            public void run() {
+////                for (int i = 0; i < 2; i++) {
+////                    System.out.println("child thread");
+////                }
+////
+////            }
+////        };
+////        ArrayList<Thread> arrT = new ArrayList<Thread>();
+////        for (int i = 0; i < 2; i++) {
+////            arrT.add(new Thread(customBufferBufferedStreamRunnable));
+////        }
+////        for (Thread tr : arrT) {
+////            tr.start();
+////        }
+////
+////        for (Thread tr : arrT) {
+////            tr.join();
+////        }
+////        System.out.println("Main thread");
+//
+////        Long test = new Long(1000);
+////        long t = test;
+////         System.out.println(t);
+////        //byte [] buf = new byte[1024 * 1024 * 1024];
+////         
+//        RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file1.txt", "rw");
+//        int rand =RandomUtils.getRandomGenerator().nextInt(1000);
+//         System.out.println(rand);
+//         rand =RandomUtils.getRandomGenerator().nextInt(1000);
+//         System.out.println(rand);
+//         rand =RandomUtils.getRandomGenerator().nextInt(1000);
+//         System.out.println(rand);
+//         
+//         
+//        
+//        
+//        System.out.println(RandomUtils.getFilepathRandRead());     
+////        File newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathRead());
+////        newFolder.mkdirs();
+////        newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathRandRead());
+////        newFolder.mkdirs();
+////        newFolder = new File("/media/D/tmp"+RandomUtils.getFilepathWrite());
+////        newFolder.mkdirs();
+////        
+////        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream("/media/D/tmp"+RandomUtils.getRandFileName()));
+////         byte[] buf =new byte[1024*1024];
+////        try {
+////            fos.write(buf, 0, buf.length);
+////        } catch (Exception e) {
+////            e.printStackTrace();
+////        } finally {
+////            close(fos);
+////        }
+//         
+////        int i=1;
+////            
+////            System.out.println("File length "+file.length());
+////            rand = RandomUtils.getRandomGenerator().nextInt((int)file.length());
+////            System.out.println(rand);
+//              RandomAccessFile file = new RandomAccessFile("D:/Data/tmp/write/file1.txt", "rw");
+//        int rand =RandomUtils.getRandomGenerator().nextInt(1000);  
+//        byte[] buf = new byte[1024*1024*1024];
 //         rand = RandomUtils.getRandomGenerator().nextInt(buf.length);
 //        file.seek(rand);
 //        file.write(buf);
 //        file.close();
-//        int i=5000;
-//        long startfileclose = System.nanoTime();
-//        while(i>0){
-//        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-//         byte[] buf =new byte[1024*1024];
-//        try {
-//            fos.write(buf, 0, buf.length);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            close(fos);
-//         
-//            //System.out.println(1/((System.nanoTime() - startfileclose)*1e-9));
+        int i = 0;
+        long startfileclose = System.nanoTime();
+        double[] sampleSorted = new double[100000];
+//        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream("D:/Data/read" + RandomUtils.getRandFileName()));
+//        while (i < 3000) {
+//            long startwrite = System.nanoTime();
+//            byte[] buf = new byte[1024*1024];
+//            try {
+//                fos.write(buf, 0, buf.length);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            sampleSorted[i] = (System.nanoTime() - startwrite )* 1e-9;
+//            i++;
 //        }
-//        i--;
-//        }
-//           System.out.println(1000/((System.nanoTime() - startfileclose)*1e-9));
+//        fos.close();
+//        System.out.println((3000 / ((System.nanoTime() - startfileclose) * 1e-9)) / (1024 * 1024));
+//        Arrays.sort(sampleSorted);
+//        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
+//        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+//        System.out.println("		THROUGHPUT :(MB/sec) " + ((3000 / CalcSupport.sum(sampleSorted))/( 1)));
+        
+        
+        byte[] buf = new byte[1024*1024];
+        i = 0;
+        sampleSorted = new double[3000];
+        RandomAccessFile file = new RandomAccessFile("D:/Data/read" + RandomUtils.getRandFileName(), "rw");
+        while (i < 3000) {
+            long startwrite = System.nanoTime();
+            try {
+                int rand = RandomUtils.getRandomGenerator().nextInt(buf.length);
+                file.seek(rand);
+                file.write(buf);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
+            i++;
+        }
+        file.close();
+        Arrays.sort(sampleSorted);
+        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+        System.out.println("		THROUGHPUT :(MB/sec) " + ((3000 / CalcSupport.sum(sampleSorted)) * (1 / 1)));
+        
+        
+        
+        
+        //RandomUtils.fileCleanup("D:/Data/read");
     }
     private static final int BUFFER = 8192;
 

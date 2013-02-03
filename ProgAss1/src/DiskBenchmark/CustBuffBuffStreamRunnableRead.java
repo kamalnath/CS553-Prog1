@@ -6,6 +6,7 @@ package DiskBenchmark;
 
 import BenchCommonUtils.RandomUtils;
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -78,5 +79,15 @@ public class CustBuffBuffStreamRunnableRead implements MyRunnable {
     @Override
     public void setOverheadtime(long time) {
         overheadtime = time;
+    }
+
+    @Override
+    public MyRunnable clone() {
+        return new CustBuffBuffStreamRunnableRead( fbuf, filePath);
+    }
+
+    @Override
+    public Closeable getClose() {
+        return null;
     }
 }

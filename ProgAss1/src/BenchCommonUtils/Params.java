@@ -19,9 +19,9 @@ public class Params implements Cloneable {
     protected long numberThreads = 1;
     
     private String tempPath;
-    private long factor;
+    private double factor;
 
-    public long getFactor() {
+    public double getFactor() {
         return factor;
     }
 
@@ -174,7 +174,7 @@ public class Params implements Cloneable {
         return tempPath;
     }
 
-    public void setFactor(long i) {
+    public void setFactor(double i) {
        this.factor=i;
     }
 }

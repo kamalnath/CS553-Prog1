@@ -28,12 +28,8 @@ public class BenchMarkExecuter {
     public BenchMarkExecuter(Object job, Params params) {
         try {
             perform(job, params);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(BenchMarkExecuter.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalStateException ex) {
-            Logger.getLogger(BenchMarkExecuter.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(BenchMarkExecuter.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 
@@ -46,9 +42,9 @@ public class BenchMarkExecuter {
                 warmupJvm();
                 doMeasurements();
                 calculateStats();
-                
             }
         } finally {
+            
             RandomUtils.fileCleanup(params.getTempPath());
             cleanJvm();
         }
@@ -58,13 +54,13 @@ public class BenchMarkExecuter {
         double[] times = getTimes();
         double[] sampleSorted = times.clone();	// must make a clone since do not want the sort side effect to affect the caller
         Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :"+sampleSorted[0]+" | max : "+sampleSorted[sampleSorted.length-1]+" | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) +" ]  ");
+        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
 
         if (task instanceof Runnable) {
-            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements * 2 * params.getFactor())/ CalcSupport.sum(sampleSorted)));
+            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements * 2 * params.getFactor()) / CalcSupport.sum(sampleSorted)));
         } else {
-            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements *params.getFactor())/ CalcSupport.sum(sampleSorted)));
+            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements * params.getFactor()) / CalcSupport.sum(sampleSorted)));
         }
     }
 
@@ -89,7 +85,7 @@ public class BenchMarkExecuter {
     protected void warmupJvm() throws Exception {
         cleanJvm();
         long n = 1;
-        for (int i=0;i<params.getWarmupTime() ; i ++) {	// * 1e9 converts warmupTime to ns
+        for (int i = 0; i < params.getWarmupTime(); i++) {
             measure(n);
         }
     }
@@ -100,8 +96,7 @@ public class BenchMarkExecuter {
             System.runFinalization();
             System.gc();
             long memUsedNow = memoryUsed();
-            if ( // break early if have no more finalization and get constant mem used
-                    (ManagementFactory.getMemoryMXBean().getObjectPendingFinalizationCount() == 0)
+            if ((ManagementFactory.getMemoryMXBean().getObjectPendingFinalizationCount() == 0)
                     && (memUsedNow >= memUsedPrev)) {
 
                 break;
@@ -121,17 +116,15 @@ public class BenchMarkExecuter {
         long t1 = -1;
         MyRunnable runnable;
         long overheadtime = 0;
-        if (task instanceof Callable) {
-            Callable objCallable = (Callable) task;
-            //objCallable = processCallableTask();
+        if (task instanceof MyCallable) {
+            MyCallable objCallable = (MyCallable) task;
             t1 = timeNs();
-            overheadtime = (Long)objCallable.call();
+            objCallable.call();
         } else if (task instanceof Runnable) {
             ArrayList<MyThread> arrT = new ArrayList<MyThread>();
-            //arrT = processRunnableTask(arrT);
             runnable = (MyRunnable) task;
             for (int i = 0; i < params.numberThreads; i++) {
-                arrT.add(new MyThread(runnable));
+                arrT.add(new MyThread(runnable.clone()));
             }
             t1 = timeNs();
             for (MyThread tr : arrT) {
@@ -139,21 +132,26 @@ public class BenchMarkExecuter {
             }
             for (MyThread tr : arrT) {
                 tr.join();
-                overheadtime += tr.getObjMyRunnable().getOverheadtime();
+                Closeable objCloseable =tr.getObjMyRunnable().getClose();
+                 if(objCloseable!=null){
+                    objCloseable.close();
+                 }
             }
         } else {
             throw new IllegalStateException("task is neither a Callable or Runnable--this should never happen");
         }
 
         long t2 = timeNs();
-        return new Measurement(timeDiffSeconds(t1, (t2 - 0)));
+        return new Measurement(timeDiffSeconds(t1, (t2 - overheadtime)));
     }
 
     protected long timeNs() {
         if (params.getMeasureCpuTime()) {
             return ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();
         }
-        return System.nanoTime();
+        long time = System.nanoTime();
+
+        return time;
     }
 
     public static double timeDiffSeconds(long t1, long t2) throws IllegalArgumentException {
@@ -161,48 +159,7 @@ public class BenchMarkExecuter {
             throw new IllegalArgumentException("clock ran backwards: t1 = " + t1 + " > t2 = " + t2);
         }
         long diff = t2 - t1;
-        //return diff;
+        //System.out.println(diff * 1e-9);
         return diff * 1e-9;
     }
-
-//    private ArrayList processRunnableTask(ArrayList<Thread> arrT) throws FileNotFoundException {
-//        InputStream fis;
-//        OutputStream fos;
-//        if (params.isWriteOP) {
-//            CustBuffBuffStreamRunnableWrite runnable = (CustBuffBuffStreamRunnableWrite) task;
-//            for (int i = 0; i < 2; i++) {
-//                fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-//                runnable.setFos(fos);
-//                arrT.add(new Thread(runnable));
-//            }
-//        } else {
-//            CustBuffBuffStreamRunnableRead runnable = (CustBuffBuffStreamRunnableRead) task;
-//            for (int i = 0; i < params.numberThreads; i++) {
-//                fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead() + i));
-//                runnable.setFis(fis);
-//                arrT.add(new Thread(runnable));
-//            }
-//        }
-//        return arrT;
-//    }
-//
-//    private Callable processCallableTask() throws FileNotFoundException {
-//        OutputStream fos;
-//        CustBuffBuffStreamCallableWrite callableW;
-//        CustBuffBuffStreamCallableRead callableR;
-//        InputStream fis;
-//        if (params.isWriteOP) {
-//            callableW = (CustBuffBuffStreamCallableWrite) task;
-//            fos = new BufferedOutputStream(new FileOutputStream(RandomUtils.getRandFileName()));
-//            callableW.setFos(fos);
-//            return callableW;
-//
-//        } else {
-//            fis = new BufferedInputStream(new FileInputStream(RandomUtils.getFilepathRead()));
-//            callableR = (CustBuffBuffStreamCallableRead) task;
-//            callableR.setFis(fis);
-//            return callableR;
-//        }
-//
-//    }
 }

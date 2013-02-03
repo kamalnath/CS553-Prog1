@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
  *
  * @author USER
  */
-public class RandCallableWrite implements Callable {
+public class RandCallableWrite implements MyCallable {
 
     private byte[] fbuf;
     String filePath;

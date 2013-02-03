@@ -5,6 +5,7 @@
 package DiskBenchmark;
 
 import BenchCommonUtils.RandomUtils;
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 
@@ -17,6 +18,7 @@ public class RandRunnableWrite implements MyRunnable {
     private byte[] fbuf;
     private long overheadtime;
     String filePath;
+    RandomAccessFile file;
 
     public RandRunnableWrite(byte[] fbuf,String filePath) {
         this.fbuf = fbuf;
@@ -28,7 +30,7 @@ public class RandRunnableWrite implements MyRunnable {
         long ovrheadtime = 0;
         try {
             long startfilemake = System.nanoTime();
-            RandomAccessFile file = new RandomAccessFile(filePath+RandomUtils.getRandFileName(), "rw");
+             file = new RandomAccessFile(filePath+RandomUtils.getRandFileName(), "rw");
             ovrheadtime = System.nanoTime() - startfilemake;
             //System.out.println("fbuf------" +fbuf.length);
             ovrheadtime += DiskBenchUtil.RandFileWrite(file, fbuf);
@@ -47,5 +49,15 @@ public class RandRunnableWrite implements MyRunnable {
     @Override
     public void setOverheadtime(long time) {
         overheadtime = time;
+    }
+
+    @Override
+    public MyRunnable clone() {
+        return new RandRunnableWrite( fbuf, filePath);
+    }
+
+    @Override
+    public Closeable getClose() {
+       return file;
     }
 }
