@@ -1,12 +1,12 @@
 package NetworkBench;
 
-import java.io.*;
+import BenchCommonUtils.CalcSupport;
+import DiskBenchmark.MyCallable;
 import java.net.*;
-import java.util.concurrent.Callable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Arrays;
 
-public class UDPEchoClientCallable implements Callable {
+
+public class UDPEchoClientCallable implements MyCallable {
 
     private static DatagramSocket clientSocket;
     private static InetAddress IPAddress;
@@ -15,7 +15,7 @@ public class UDPEchoClientCallable implements Callable {
     private static DatagramPacket sendPacket;
     private static DatagramPacket receivePacket;
 
-    public static DatagramSocket getClientSocket() {
+    public  DatagramSocket getClientSocket() {
         return clientSocket;
     }
 
@@ -35,11 +35,18 @@ public class UDPEchoClientCallable implements Callable {
     }
 
     public static void main(String args[]) throws Exception {
-        clientSocket.send(sendPacket);
-        clientSocket.receive(receivePacket);
-        String modifiedSentence = new String(receivePacket.getData());
-        System.out.println("FROM SERVER:" + modifiedSentence);
-        clientSocket.close();
+        
+        UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable((1024*63));
+        double[] sampleSorted = new double[3000];
+        for (int i = 0; i < 3000; i++) {
+            long startwrite = System.nanoTime();
+            objUDPEchoClientCallable.call();
+            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
+        }
+        Arrays.sort(sampleSorted);
+        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+        System.out.println("		THROUGHPUT :(MB/sec) " + ((3000 / CalcSupport.sum(sampleSorted)) * (1 / 1)));
     }
 
     @Override

@@ -1,31 +1,34 @@
 package NetworkBench;
 
-import java.io.*;
-import java.net.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 
-public class UDPEchoServer {
+
+
+public class UDPEchoServer extends Thread{
 
     DatagramSocket serverSocket;
     byte[] receiveData;
-    byte[] sendData;
 
     public UDPEchoServer() {
+        super();
         try {
             serverSocket = new DatagramSocket(9876);
-            receiveData = new byte[1024];
-            sendData = new byte[1024];
+            receiveData = new byte[1024*64];
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
+    @Override
+        public void run() {
+            waitClient();
+        }
     public void waitClient() {
         while (true) {
             try {
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
-                Thread objThread = new Thread(new UDPEchoServerSupporter(receivePacket, sendData, serverSocket));
+                Thread objThread = new Thread(new UDPEchoServerSupporter(receivePacket,serverSocket));
                 objThread.start();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -34,6 +37,6 @@ public class UDPEchoServer {
     }
 
     public static void main(String args[]) throws Exception {
-        new UDPEchoServer().waitClient();
+        new UDPEchoServer().start();
     }
 }

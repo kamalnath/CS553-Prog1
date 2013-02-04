@@ -6,6 +6,8 @@ package NetworkBench;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,37 +23,29 @@ class ThreadServerClient extends Thread {
 
     @Override
     public void run() {
-
+        PrintStream os = null;
+        BufferedReader reader = null;
         try {
-            PrintStream os;
-
-            /*
-             * Create input and output streams for this client.
-             */
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            //Create input and output streams for this client.
+            reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             os = new PrintStream(clientSocket.getOutputStream());
-            /*
-             * Start the conversation.
-             */
+            byte[] b= new byte[1];
             while (true) {
                 String line = reader.readLine();
-                if (line.startsWith("/quit")) {
-                    break;
-                }
-                System.out.println("RECEIVED: " + line);
-                os.println("*** from server " + line + " ***");
-                
-            }
-            /*
-             * Close the output stream, close the input stream, close the
-             * socket.
-             */
+                //System.out.println("RECEIVED: " + line.length());
+                os.println();
 
-            os.close();
-            reader.close();
-            clientSocket.close();
+            }
+
         } catch (IOException e) {
+        } finally {
+            try {
+                os.close();
+                reader.close();
+                clientSocket.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

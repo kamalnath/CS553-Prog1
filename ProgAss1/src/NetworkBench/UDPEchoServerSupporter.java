@@ -22,21 +22,18 @@ public class UDPEchoServerSupporter implements Runnable {
         this.receivePacket = receivePacket;
     }
 
-    UDPEchoServerSupporter(DatagramPacket receivePacket, byte[] sendData, DatagramSocket serverSocket) {
+    UDPEchoServerSupporter(DatagramPacket receivePacket, DatagramSocket serverSocket) {
         this.receivePacket = receivePacket;
-        this.sendData = sendData;
         this.serverSocket = serverSocket;
     }
 
     @Override
     public void run() {
-
         try {
-            String sentence = new String(receivePacket.getData());
-            System.out.println("RECEIVED: " + sentence);
+            //System.out.println("RECEIVED: " + receivePacket.getLength());
+            sendData = new byte[1];
             InetAddress IPAddress = receivePacket.getAddress();
             int port = receivePacket.getPort();
-            sendData = sentence.getBytes();
             DatagramPacket sendPacket =
                     new DatagramPacket(sendData, sendData.length, IPAddress, port);
             serverSocket.send(sendPacket);

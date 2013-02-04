@@ -24,7 +24,7 @@ public class UDPEchoClientRunnable implements MyRunnable {
             clientSocket = new DatagramSocket();
             IPAddress = InetAddress.getByName("localhost");
             sendData = new byte[Size];
-            receiveData = new byte[Size];
+            receiveData = new byte[10];
             sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
             receivePacket = new DatagramPacket(receiveData, receiveData.length);
         } catch (UnknownHostException ex) {
@@ -71,6 +71,6 @@ public class UDPEchoClientRunnable implements MyRunnable {
 
     @Override
     public Closeable getClose() {
-      return null;
+      return (Closeable) clientSocket;
     }
 }
