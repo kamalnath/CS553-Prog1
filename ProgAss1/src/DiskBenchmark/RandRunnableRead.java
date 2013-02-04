@@ -8,8 +8,6 @@ import BenchCommonUtils.RandomUtils;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

@@ -24,7 +24,7 @@ public class TCPChatClientRunnable implements MyRunnable {
     private static byte[] sendData;
     private long overheadtime;
     BufferedReader reader;
-
+   
     public TCPChatClientRunnable(int size) {
         // The client socket
         Socket clientSocket = null;

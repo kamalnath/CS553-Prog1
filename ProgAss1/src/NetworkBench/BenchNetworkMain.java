@@ -64,7 +64,7 @@ public class BenchNetworkMain {
                 params.setWarmupTime(1);
                 params.setNumberMeasurements(3000);
                 bufflen = 1024;
-                break;
+                break; 
             case 3:
                 params.setNumberMeasurements(2000);
                 params.setWarmupTime(1);

@@ -102,7 +102,6 @@ public class BenchMarkExecuterNetwork {
                 memUsedPrev = memUsedNow;
             }
         }
-
     }
 
     public static long memoryUsed() {

@@ -3,8 +3,6 @@
  * and open the template in the editor.
  */
 package BenchCommonUtils;
-
-
 public class Params implements Cloneable {
 
     protected boolean measureCpuTime = false;

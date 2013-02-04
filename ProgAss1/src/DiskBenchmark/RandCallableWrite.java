@@ -6,7 +6,6 @@ package DiskBenchmark;
 
 import BenchCommonUtils.RandomUtils;
 import java.io.RandomAccessFile;
-import java.util.concurrent.Callable;
 
 /**
  *

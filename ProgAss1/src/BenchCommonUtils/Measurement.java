@@ -3,8 +3,6 @@
  * and open the template in the editor.
  */
 package BenchCommonUtils;
-
-
 public class Measurement {
     protected double executionTime;
     protected Measurement(double executionTime) {

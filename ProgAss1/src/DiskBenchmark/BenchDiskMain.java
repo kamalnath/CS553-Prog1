@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author KamalNath_NG
@@ -14,8 +10,6 @@ import BenchCommonUtils.Params;
 import BenchCommonUtils.RandomUtils;
 import java.io.*;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BenchDiskMain {
 

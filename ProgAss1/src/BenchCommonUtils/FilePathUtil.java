@@ -10,5 +10,4 @@ package BenchCommonUtils;
  */
 public class FilePathUtil {
      private  String filepath;
-    
 }

@@ -4,8 +4,6 @@
  */
 package DiskBenchmark;
 
-
-
 /**
  *
  * @author USER

@@ -60,7 +60,7 @@ public class UDPEchoClientRunnable implements MyRunnable {
             clientSocket.send(sendPacket);
             clientSocket.setSoTimeout(30);
             clientSocket.receive(receivePacket);
-        } catch (SocketTimeoutException ex) { System.out.println("timeout");
+        } catch (SocketTimeoutException ex) { //System.out.println("timeout");
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
