@@ -8,8 +8,7 @@
  */
 package NetworkBench;
 
-import DiskBenchmark.*;
-import BenchCommonUtils.BenchMarkExecuter;
+import BenchCommonUtils.BenchMarkExecuterNetwork;
 import BenchCommonUtils.Params;
 import java.io.*;
 import java.util.Scanner;
@@ -26,7 +25,7 @@ public class BenchNetworkMain {
         System.out.println("Please enter server/receiver location");
         Scanner sc = new Scanner(System.in);
         String strServer = sc.nextLine();
-        strServer="localhost";
+        strServer = "localhost";
         if (!(strServer.equals("localhost") || strServer.equals("127.0.0.1"))) {
             System.out.println("Please confirm the server/receiver has been startted ");
             sc.nextLine();
@@ -36,7 +35,7 @@ public class BenchNetworkMain {
             new TCPMultiThreadChatServerEcho().start();
         }
 //        System.out.println("Start WRITE benchmark with little block (1 B)");
-        benchNetwork(1);
+        benchNetwork(3);
         sc.nextLine();
         System.exit(0);
 //        System.out.println("Start WRITE benchmark with medium block (1 KB)");
@@ -59,7 +58,7 @@ public class BenchNetworkMain {
             case 1:
                 params.setWarmupTime(1);
                 params.setNumberMeasurements(3000);
-                bufflen=1;
+                bufflen = 1;
                 break;
             case 2:
                 params.setWarmupTime(1);
@@ -67,28 +66,28 @@ public class BenchNetworkMain {
                 bufflen = 1024;
                 break;
             case 3:
-                params.setNumberMeasurements(3000);
+                params.setNumberMeasurements(2000);
                 params.setWarmupTime(1);
-                bufflen = 1024*63;
+                bufflen = 1024 * 63;
                 break;
 
         }
         final int ibufflen = bufflen;
         params.setFactor((double) 1.0);
-//        UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable(ibufflen);
-//        BenchMarkExecuter benchUDPEchoClientCallable = new BenchMarkExecuter(objUDPEchoClientCallable, params);
-//        objUDPEchoClientCallable.getClientSocket().close();
+        UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable(ibufflen);
+        BenchMarkExecuterNetwork benchUDPEchoClientCallable = new BenchMarkExecuterNetwork(objUDPEchoClientCallable, params);
+        objUDPEchoClientCallable.getClientSocket().close();
 
         TCPChatClientCallable objTCPChatClientCallable = new TCPChatClientCallable(bufflen);
-        BenchMarkExecuter benchTCPChatClientCallable = new BenchMarkExecuter(objTCPChatClientCallable, params);
+        BenchMarkExecuterNetwork benchTCPChatClientCallable = new BenchMarkExecuterNetwork(objTCPChatClientCallable, params);
         objTCPChatClientCallable.getClientSocket().close();
-//
-//        params.setNumberThreads(2);
-//        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable(ibufflen);
-//        BenchMarkExecuter benchUDPEchoClientRunnable = new BenchMarkExecuter(objUDPEchoClientRunnable, params);
-//
-//        TCPChatClientRunnable objTCPChatClientRunnable = new TCPChatClientRunnable(ibufflen);
-//        BenchMarkExecuter benchTCPChatClientRunnable = new BenchMarkExecuter(objTCPChatClientRunnable, params);
+
+        params.setNumberThreads(2);
+        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable(ibufflen);
+        BenchMarkExecuterNetwork benchUDPEchoClientRunnable = new BenchMarkExecuterNetwork(objUDPEchoClientRunnable, params);
+
+        TCPChatClientRunnable objTCPChatClientRunnable = new TCPChatClientRunnable(ibufflen);
+        BenchMarkExecuterNetwork benchTCPChatClientRunnable = new BenchMarkExecuterNetwork(objTCPChatClientRunnable, params);
 
     }
 }

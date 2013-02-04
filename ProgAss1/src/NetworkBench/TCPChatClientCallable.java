@@ -42,10 +42,11 @@ public class TCPChatClientCallable implements MyCallable {
     }
 
     public static void main(String[] args) throws Exception {
-        TCPChatClientCallable objTCPChatClientCallable = new TCPChatClientCallable(1);
+        TCPChatClientCallable objTCPChatClientCallable ;
         double[] sampleSorted = new double[3000];
         for (int i = 0; i < 3000; i++) {
             long startwrite = System.nanoTime();
+            objTCPChatClientCallable = new TCPChatClientCallable(1024*63);
             objTCPChatClientCallable.call();
             sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
         }
@@ -63,6 +64,10 @@ public class TCPChatClientCallable implements MyCallable {
         os.flush();
         reader.readLine();
         return ret;
+    }
+    @Override
+    public TCPChatClientCallable clone(){
+       return new TCPChatClientCallable(sendData.length) ;
     }
 
     public Socket getClientSocket() {

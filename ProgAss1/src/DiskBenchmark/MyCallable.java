@@ -12,4 +12,5 @@ package DiskBenchmark;
  */
 public interface MyCallable {
      public Object call() throws Exception;
+     
 }

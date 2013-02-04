@@ -29,13 +29,10 @@ class ThreadServerClient extends Thread {
             //Create input and output streams for this client.
             reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             os = new PrintStream(clientSocket.getOutputStream());
-            byte[] b= new byte[1];
-            while (true) {
-                String line = reader.readLine();
-                //System.out.println("RECEIVED: " + line.length());
-                os.println();
-
-            }
+            byte[] b = new byte[1];
+            String line = reader.readLine();
+            //System.out.println("RECEIVED: " + line.length());
+            os.println();
 
         } catch (IOException e) {
         } finally {

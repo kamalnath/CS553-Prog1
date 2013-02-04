@@ -5,6 +5,7 @@
 package BenchCommonUtils;
 
 import DiskBenchmark.*;
+import NetworkBench.TCPChatClientCallable;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.Arrays;
  *
  * @author kamalnath_ng
  */
-public class BenchMarkExecuter {
+public class BenchMarkExecuterNetwork {
 
     private Params params;
     private Object task;
@@ -22,7 +23,7 @@ public class BenchMarkExecuter {
     protected Measurement[] measurements;
     protected long numberOfThreads = 2;
 
-    public BenchMarkExecuter(Object job, Params params) {
+    public BenchMarkExecuterNetwork(Object job, Params params) {
         try {
             perform(job, params);
         } catch (Exception ex) {
@@ -115,6 +116,10 @@ public class BenchMarkExecuter {
         long overheadtime = 0;
         if (task instanceof MyCallable) {
             MyCallable objCallable = (MyCallable) task;
+            if(task instanceof TCPChatClientCallable){
+                TCPChatClientCallable objTCPChatClientCallable =(TCPChatClientCallable) task;
+                objCallable  = objTCPChatClientCallable.clone();
+            }
             t1 = timeNs();
             objCallable.call();
         } else if (task instanceof Runnable) {

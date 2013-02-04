@@ -37,8 +37,8 @@ public class UDPEchoClientCallable implements MyCallable {
     public static void main(String args[]) throws Exception {
         
         UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable((1024*63));
-        double[] sampleSorted = new double[3000];
-        for (int i = 0; i < 3000; i++) {
+        double[] sampleSorted = new double[10];
+        for (int i = 0; i < 10; i++) {
             long startwrite = System.nanoTime();
             objUDPEchoClientCallable.call();
             sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
@@ -46,7 +46,7 @@ public class UDPEchoClientCallable implements MyCallable {
         Arrays.sort(sampleSorted);
         System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
         System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + ((3000 / CalcSupport.sum(sampleSorted)) * (1 / 1)));
+        System.out.println("		THROUGHPUT :(MB/sec) " + ((10 / CalcSupport.sum(sampleSorted)) * (1 / 1)));
     }
 
     @Override

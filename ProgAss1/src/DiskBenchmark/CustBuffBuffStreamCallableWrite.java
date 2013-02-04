@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  */ 
 public class CustBuffBuffStreamCallableWrite implements MyCallable {
 
-    OutputStream fos;
+    OutputStream fos; 
     int ibufflen;
     byte[] fbuf;
     String filePath;

@@ -12,12 +12,12 @@ public class TCPMultiThreadChatServerEcho extends Thread{
     // The server socket.
     private static ServerSocket serverSocket = null;
     // The client socket.
-    private static Socket clientSocket = null;
 
     @Override
     public void run() {
         // The default port number.
         int portNumber = 2222;
+        Socket clientSocket = null;
         //Open a server socket on the portNumber (default 2222). 
         try {
             serverSocket = new ServerSocket(portNumber);
@@ -35,6 +35,7 @@ public class TCPMultiThreadChatServerEcho extends Thread{
         }
     }
     public static void main(String args[]) throws Exception {
+        System.out.println("starting TCP server");
         new TCPMultiThreadChatServerEcho().start();
     }
 }
