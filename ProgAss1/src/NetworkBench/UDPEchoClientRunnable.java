@@ -12,12 +12,12 @@ public class UDPEchoClientRunnable implements Callable {
 
     private int Size;
     private int loop;
-
-    public UDPEchoClientRunnable(int Size) {
-        this.Size = Size;
+private String host;
+    public UDPEchoClientRunnable(String host) {
+        this.host=host;
     }
     public static void main(String args[]) throws Exception {
-        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable(1);
+        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable("localhost");
         objUDPEchoClientRunnable.domeasurement(63 * 1024, 1000);
     }
     @Override
@@ -66,10 +66,10 @@ public class UDPEchoClientRunnable implements Callable {
 
     public void domeasurement(int size, int loop) throws InterruptedException, ExecutionException {
         double[] sampleSorted1, sampleSorted2, sampleSorted;
-        UDPEchoClientRunnable objUDPEchoClientRunnable1 = new UDPEchoClientRunnable(1);
+        UDPEchoClientRunnable objUDPEchoClientRunnable1 = new UDPEchoClientRunnable(host);
         objUDPEchoClientRunnable1.loop = loop;
         objUDPEchoClientRunnable1.Size = size;
-        UDPEchoClientRunnable objUDPEchoClientRunnable2 = new UDPEchoClientRunnable(1);
+        UDPEchoClientRunnable objUDPEchoClientRunnable2 = new UDPEchoClientRunnable(host);
         objUDPEchoClientRunnable2.loop = loop;
         objUDPEchoClientRunnable2.Size = size;
         ExecutorService executor = Executors.newFixedThreadPool(2);

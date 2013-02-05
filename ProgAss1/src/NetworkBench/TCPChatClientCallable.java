@@ -16,20 +16,39 @@ import java.util.Arrays;
 
 public class TCPChatClientCallable implements MyCallable {
 
-    // The client socket
-    private static Socket clientSocket = null;
-    // The output stream
-    private static BufferedOutputStream os = null;
-    // The default port.
-    int portNumber = 2222;
     // The default host.
     //String host = "192.168.33.170";
     String host = "localhost";
-    private static byte[] sendData;
-    // The input stream reader
-    BufferedReader reader;
 
-    public TCPChatClientCallable(int size) {
+    public TCPChatClientCallable(String host) {
+        this.host = host;
+
+    }
+
+    public void domeasurement(int size, int loop) {
+        double[] sampleSorted = new double[loop];
+        try {
+            sampleSorted = call(size, loop);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        Arrays.sort(sampleSorted);
+        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+    }
+
+    private double[] call(int size, int loop) {
+        // The client socket
+        Socket clientSocket = null;
+        // The output stream
+        BufferedOutputStream os = null;
+        // The default port.
+        int portNumber = 2222;
+        byte[] sendData;
+        // The input stream reader
+        BufferedReader reader = null;
+        double[] sampleSorted = new double[loop];
         try {
             sendData = new byte[size];
             clientSocket = new Socket(host, portNumber);
@@ -40,25 +59,6 @@ public class TCPChatClientCallable implements MyCallable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void domeasurement(int size, int loop) {
-        TCPChatClientCallable objTCPChatClientCallable;
-        double[] sampleSorted = new double[loop];
-        try {
-            //objTCPChatClientCallable = new TCPChatClientCallable(1);
-            sampleSorted = call(size,loop);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
-    }
-
-    private double[] call( int size,int loop) {
-        double[] sampleSorted = new double[loop];
         try {
             for (int i = 0; i < loop; i++) {
                 if (i == 0) {
@@ -85,38 +85,20 @@ public class TCPChatClientCallable implements MyCallable {
 
     public static void main(String[] args) throws Exception {
         TCPChatClientCallable objTCPChatClientCallable;
-        objTCPChatClientCallable = new TCPChatClientCallable(1);
-        objTCPChatClientCallable.domeasurement(63 * 1024,5000);
+        objTCPChatClientCallable = new TCPChatClientCallable("localhost");
+        objTCPChatClientCallable.domeasurement(63 * 1024, 5000);
 
     }
 
     @Override
     public Object call() throws Exception {
-        for (int i = 0; i < 1000; i++) {
-            if (i == 0) {
-                sendData = new byte[1024 * 63];
-            } else {
-                sendData = new byte[1];
-            }
-            os.write(sendData);
-            os.write('\n');
-            os.flush();
-            String line = reader.readLine();
-            //System.out.println("length" + line.getBytes().length);
-        }
-        os.write("quit".getBytes());
-        os.write('\n');
-        os.flush();
+
         long ret = 0;
         return ret;
     }
 
     @Override
     public TCPChatClientCallable clone() {
-        return new TCPChatClientCallable(sendData.length);
-    }
-
-    public Socket getClientSocket() {
-        return clientSocket;
+        return new TCPChatClientCallable(host);
     }
 }

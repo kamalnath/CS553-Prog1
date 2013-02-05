@@ -10,7 +10,8 @@ package NetworkBench;
 
 import BenchCommonUtils.BenchMarkExecuterNetwork;
 import BenchCommonUtils.Params;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -18,63 +19,82 @@ import java.util.concurrent.ExecutionException;
 public class BenchNetworkMain {
 
     private static final Params params = new Params();
-
+    static String strServer;
     public static void main(String[] args) throws Exception {
-        benchText();
+        benchNetworkAll();
     }
 
-    private static void benchText() throws Exception {
+    private static void benchNetworkAll() throws Exception {
         System.out.println("Please enter server/receiver location");
         Scanner sc = new Scanner(System.in);
-        String strServer = sc.nextLine();
-        strServer = "localhost";
+         strServer = sc.nextLine();
+        if(strServer.equalsIgnoreCase("")){
+            System.out.println("local servers/receiver used as default");
+            strServer = "localhost";
+        }
         if (!(strServer.equals("localhost") || strServer.equals("127.0.0.1"))) {
             System.out.println("Please confirm the server/receiver has been startted ");
             sc.nextLine();
         } else {
-            System.out.println("Starting servers/receiver ");
+            System.out.println("Starting local servers/receiver ");
             new UDPEchoServer().start();
             new TCPMultiThreadChatServerEcho().start();
         }
-        sc.nextLine();
-        System.out.println("Start Network benchmark with little block (1 B)");
-        benchNetwork(1);
-        sc.nextLine();
-        System.out.println("Start Network benchmark with little block (1 KB)");
-        benchNetwork(2);
-        sc.nextLine();
-        System.out.println("Start Network benchmark with little block (64KB)");
-        benchNetwork(3);
-        sc.nextLine();
-        System.exit(0);
-//        System.out.println("Start WRITE benchmark with medium block (1 KB)");
-//        benchWrite(2);
-//        System.out.println("Start WRITE benchmark with medium block (1 MB)");
-//        benchWrite(3);
-//        System.out.println("Start WRITE benchmark with medium block (1 GB)");
-//        benchWrite(4);
-
-//            benchRead(1);
-//            benchRead(2);
-//            benchRead(3);
-//            benchRead(4);
+        while (true) {
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            System.out.println("                     Select your choice                               ");
+            System.out.println("  0  >------> Run all network Bench marks for all size packets <--------------<   ");
+            System.out.println("  1  >------>      Run all network Bench marks for 1 Byte      <--------------<   ");
+            System.out.println("  2  >------>      Run all network Bench marks for 1 KB        <--------------<   ");
+            System.out.println("  3  >------>      Run all network Bench marks for 64 KB       <--------------<   ");
+            System.out.println("  4  >------>                     To Exit                      <--------------<   ");
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            switch (sc.nextInt()) {
+                case 0:
+                    benchNetwork(1);
+                    benchNetwork(2);
+                    benchNetwork(3);
+                    break;
+                case 1:
+                    benchNetwork(1);
+                    break;
+                case 2:
+                    benchNetwork(2);
+                    break;
+                case 3:
+                    benchNetwork(3);
+                    break;
+                default:
+                    sc.nextLine();
+                    System.exit(0);
+            }
+        }
     }
 
     private static void benchNetwork(final int iType) throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
-
         int bufflen = 0;
         switch (iType) {
             case 1:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start Network benchmark with little block (1 B)");
                 params.setWarmupTime(1);
                 params.setNumberMeasurements(3000);
                 bufflen = 1;
                 break;
             case 2:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start Network benchmark with little block (1 KB)");
                 params.setWarmupTime(1);
                 params.setNumberMeasurements(3000);
                 bufflen = 1024;
                 break;
             case 3:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start Network benchmark with little block (64KB)");
+                System.out.println("");
                 params.setNumberMeasurements(1000);
                 params.setWarmupTime(1);
                 bufflen = 1024 * 63;
@@ -83,18 +103,30 @@ public class BenchNetworkMain {
         }
         final int ibufflen = bufflen;
         params.setFactor((double) bufflen / (1024 * 1024));
-
+        System.out.println("");
+        System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+        System.out.println("");
+        System.out.println("--- Results for Single threaded Runs--");
+        System.out.println("      UDP Packets :");
         UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable(ibufflen);
         BenchMarkExecuterNetwork benchUDPEchoClientCallable = new BenchMarkExecuterNetwork(objUDPEchoClientCallable, params);
         objUDPEchoClientCallable.getClientSocket().close();
         cleanJvm();
-        new TCPChatClientCallable(1).domeasurement(bufflen, 2000);
-        cleanJvm();
+        System.out.println("      TCP Packets :");
+        new TCPChatClientCallable(strServer).domeasurement(bufflen, 2000);
+        cleanJvm(); 
         params.setNumberThreads(2);
-        new UDPEchoClientRunnable(ibufflen).domeasurement(bufflen, 1000);
+        System.out.println("");
+        System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+        System.out.println("");
+        System.out.println("--- Results for Multi threaded Runs--");
+        System.out.println("      UDP Packets :");
+        new UDPEchoClientRunnable(strServer).domeasurement(bufflen, 1000);
         cleanJvm();
+        System.out.println("      TCP Packets :");
         new TCPChatClientRunnable(1).domeasurement(bufflen, 2000);
     }
+
     private static void cleanJvm() {
         long memUsedPrev = memoryUsed();
         for (int i = 0; i < 100; i++) {
