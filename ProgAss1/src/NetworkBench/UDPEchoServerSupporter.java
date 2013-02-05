@@ -31,7 +31,14 @@ public class UDPEchoServerSupporter implements Runnable {
     public void run() {
         try {
             //System.out.println("RECEIVED: " + receivePacket.getLength());
-            sendData = new byte[1];
+            int isize = receivePacket.getLength();
+            if(isize==1){
+                sendData = new byte[1];
+            }else if(isize==2){
+                sendData = new byte[1024];
+            }else{
+                sendData = new byte[1024*63];
+            }
             InetAddress IPAddress = receivePacket.getAddress();
             int port = receivePacket.getPort();
             DatagramPacket sendPacket =

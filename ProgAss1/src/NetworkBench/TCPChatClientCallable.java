@@ -23,6 +23,7 @@ public class TCPChatClientCallable implements MyCallable {
     // The default port.
     int portNumber = 2222;
     // The default host.
+    //String host = "192.168.33.170";
     String host = "localhost";
     private static byte[] sendData;
     // The input stream reader
@@ -40,34 +41,79 @@ public class TCPChatClientCallable implements MyCallable {
             e.printStackTrace();
         }
     }
-   
-    public static void main(String[] args) throws Exception {
-        TCPChatClientCallable objTCPChatClientCallable ;
-        double[] sampleSorted = new double[3000];
-        for (int i = 0; i < 3000; i++) {
-            long startwrite = System.nanoTime();
-            objTCPChatClientCallable = new TCPChatClientCallable(1024*63);
-            objTCPChatClientCallable.call();
-            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
+
+    public void domeasurement(int size, int loop) {
+        TCPChatClientCallable objTCPChatClientCallable;
+        double[] sampleSorted = new double[loop];
+        try {
+            //objTCPChatClientCallable = new TCPChatClientCallable(1);
+            sampleSorted = call(size,loop);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         Arrays.sort(sampleSorted);
         System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
         System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + ((3000 / CalcSupport.sum(sampleSorted)) * (1 / 1)));
+        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+    }
+
+    private double[] call( int size,int loop) {
+        double[] sampleSorted = new double[loop];
+        try {
+            for (int i = 0; i < loop; i++) {
+                if (i == 0) {
+                    sendData = new byte[size];
+                } else {
+                    sendData = new byte[1];
+                }
+                long startwrite = System.nanoTime();
+                os.write(sendData);
+                os.write('\n');
+                os.flush();
+                String line = reader.readLine();
+                sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
+                //System.out.println("length" + line.getBytes().length);
+            }
+            os.write("quit".getBytes());
+            os.write('\n');
+            os.flush();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return sampleSorted;
+    }
+
+    public static void main(String[] args) throws Exception {
+        TCPChatClientCallable objTCPChatClientCallable;
+        objTCPChatClientCallable = new TCPChatClientCallable(1);
+        objTCPChatClientCallable.domeasurement(63 * 1024,5000);
+
     }
 
     @Override
     public Object call() throws Exception {
-        long ret = 0;
-        os.write(sendData);
+        for (int i = 0; i < 1000; i++) {
+            if (i == 0) {
+                sendData = new byte[1024 * 63];
+            } else {
+                sendData = new byte[1];
+            }
+            os.write(sendData);
+            os.write('\n');
+            os.flush();
+            String line = reader.readLine();
+            //System.out.println("length" + line.getBytes().length);
+        }
+        os.write("quit".getBytes());
         os.write('\n');
         os.flush();
-        reader.readLine();
+        long ret = 0;
         return ret;
     }
+
     @Override
-    public TCPChatClientCallable clone(){
-       return new TCPChatClientCallable(sendData.length) ;
+    public TCPChatClientCallable clone() {
+        return new TCPChatClientCallable(sendData.length);
     }
 
     public Socket getClientSocket() {

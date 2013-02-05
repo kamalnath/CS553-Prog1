@@ -29,6 +29,7 @@ public class TCPMultiThreadChatServerEcho extends Thread{
             try {
                 clientSocket = serverSocket.accept();
                 new ThreadServerClient(clientSocket).start();
+                
             } catch (IOException e) {
                 System.out.println(e);
             }

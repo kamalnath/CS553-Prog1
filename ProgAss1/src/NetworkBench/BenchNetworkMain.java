@@ -11,17 +11,19 @@ package NetworkBench;
 import BenchCommonUtils.BenchMarkExecuterNetwork;
 import BenchCommonUtils.Params;
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 
 public class BenchNetworkMain {
 
     private static final Params params = new Params();
 
-    public static void main(String[] args) throws FileNotFoundException, IOException {
+    public static void main(String[] args) throws Exception {
         benchText();
     }
 
-    private static void benchText() throws FileNotFoundException, IOException {
+    private static void benchText() throws Exception {
         System.out.println("Please enter server/receiver location");
         Scanner sc = new Scanner(System.in);
         String strServer = sc.nextLine();
@@ -34,7 +36,14 @@ public class BenchNetworkMain {
             new UDPEchoServer().start();
             new TCPMultiThreadChatServerEcho().start();
         }
-//        System.out.println("Start WRITE benchmark with little block (1 B)");
+        sc.nextLine();
+        System.out.println("Start Network benchmark with little block (1 B)");
+        benchNetwork(1);
+        sc.nextLine();
+        System.out.println("Start Network benchmark with little block (1 KB)");
+        benchNetwork(2);
+        sc.nextLine();
+        System.out.println("Start Network benchmark with little block (64KB)");
         benchNetwork(3);
         sc.nextLine();
         System.exit(0);
@@ -51,7 +60,7 @@ public class BenchNetworkMain {
 //            benchRead(4);
     }
 
-    private static void benchNetwork(final int iType) throws FileNotFoundException, IOException {
+    private static void benchNetwork(final int iType) throws FileNotFoundException, IOException, InterruptedException, ExecutionException {
 
         int bufflen = 0;
         switch (iType) {
@@ -64,30 +73,46 @@ public class BenchNetworkMain {
                 params.setWarmupTime(1);
                 params.setNumberMeasurements(3000);
                 bufflen = 1024;
-                break; 
+                break;
             case 3:
-                params.setNumberMeasurements(2000);
+                params.setNumberMeasurements(1000);
                 params.setWarmupTime(1);
                 bufflen = 1024 * 63;
                 break;
 
         }
         final int ibufflen = bufflen;
-        params.setFactor((double) 1.0);
+        params.setFactor((double) bufflen / (1024 * 1024));
+
         UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable(ibufflen);
         BenchMarkExecuterNetwork benchUDPEchoClientCallable = new BenchMarkExecuterNetwork(objUDPEchoClientCallable, params);
         objUDPEchoClientCallable.getClientSocket().close();
-
-        TCPChatClientCallable objTCPChatClientCallable = new TCPChatClientCallable(bufflen);
-        BenchMarkExecuterNetwork benchTCPChatClientCallable = new BenchMarkExecuterNetwork(objTCPChatClientCallable, params);
-        objTCPChatClientCallable.getClientSocket().close();
-
+        cleanJvm();
+        new TCPChatClientCallable(1).domeasurement(bufflen, 2000);
+        cleanJvm();
         params.setNumberThreads(2);
-        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable(ibufflen);
-        BenchMarkExecuterNetwork benchUDPEchoClientRunnable = new BenchMarkExecuterNetwork(objUDPEchoClientRunnable, params);
+        new UDPEchoClientRunnable(ibufflen).domeasurement(bufflen, 1000);
+        cleanJvm();
+        new TCPChatClientRunnable(1).domeasurement(bufflen, 2000);
+    }
+    private static void cleanJvm() {
+        long memUsedPrev = memoryUsed();
+        for (int i = 0; i < 100; i++) {
+            System.runFinalization();
+            System.gc();
+            long memUsedNow = memoryUsed();
+            if ((ManagementFactory.getMemoryMXBean().getObjectPendingFinalizationCount() == 0)
+                    && (memUsedNow >= memUsedPrev)) {
 
-        TCPChatClientRunnable objTCPChatClientRunnable = new TCPChatClientRunnable(ibufflen);
-        BenchMarkExecuterNetwork benchTCPChatClientRunnable = new BenchMarkExecuterNetwork(objTCPChatClientRunnable, params);
+                break;
+            } else {
+                memUsedPrev = memUsedNow;
+            }
+        }
+    }
 
+    public static long memoryUsed() {
+        Runtime rt = Runtime.getRuntime();
+        return rt.totalMemory() - rt.freeMemory();
     }
 }

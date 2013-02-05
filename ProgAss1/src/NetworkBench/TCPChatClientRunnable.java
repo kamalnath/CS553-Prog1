@@ -5,27 +5,54 @@
 package NetworkBench;
 
 import BenchCommonUtils.CalcSupport;
-import DiskBenchmark.MyRunnable;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.*;
 
-public class TCPChatClientRunnable implements MyRunnable {
+public class TCPChatClientRunnable implements Callable {
 
     // The output stream
     private BufferedOutputStream os = null;
     private static byte[] sendData;
     private long overheadtime;
     BufferedReader reader;
-   
-    public TCPChatClientRunnable(int size) {
+    private int loop;
+    private int size;
+
+    public static void main(String[] args) throws Exception {
+        TCPChatClientRunnable objUDPEchoClientCallable1 = new TCPChatClientRunnable(1);
+        objUDPEchoClientCallable1.domeasurement(63 * 1024, 5000);
+
+    }
+    public void domeasurement(int size, int loop) throws InterruptedException, ExecutionException {
+        double[] sampleSorted1, sampleSorted2, sampleSorted;
+        TCPChatClientRunnable objUDPEchoClientCallable1 = new TCPChatClientRunnable(1);
+        
+        objUDPEchoClientCallable1.loop = loop;
+        objUDPEchoClientCallable1.size = size;
+        TCPChatClientRunnable objUDPEchoClientCallable2 = new TCPChatClientRunnable(1);
+        objUDPEchoClientCallable2.loop = loop;
+        objUDPEchoClientCallable2.size = size;
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Future<double[]> future1 = executor.submit(objUDPEchoClientCallable1);
+        Future<double[]> future2 = executor.submit(objUDPEchoClientCallable2);
+        sampleSorted1 = future1.get();
+        sampleSorted2 = future2.get();
+        sampleSorted = concat(sampleSorted1, sampleSorted2);
+        Arrays.sort(sampleSorted);
+        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop * 2 / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+        executor.shutdown();
+    }
+
+    @Override
+    public double[] call() {
         // The client socket
         Socket clientSocket = null;
         // The default port.
@@ -33,7 +60,6 @@ public class TCPChatClientRunnable implements MyRunnable {
         // The default host.
         String host = "localhost";
         // The input stream reader
-
         try {
             sendData = new byte[size];
             clientSocket = new Socket(host, portNumber);
@@ -44,66 +70,47 @@ public class TCPChatClientRunnable implements MyRunnable {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        TCPChatClientRunnable objUDPEchoClientCallable1 = new TCPChatClientRunnable((1024 * 3));
-        TCPChatClientRunnable objUDPEchoClientCallable2 = new TCPChatClientRunnable((1024 * 3));
-        double[] sampleSorted = new double[1000];
-        for (int i = 0; i < 1000; i++) {
-            Thread tr1 = new Thread(objUDPEchoClientCallable2.clone());
-            Thread tr2 = new Thread(objUDPEchoClientCallable1.clone());
-            long startwrite = System.nanoTime();
-            tr1.start();
-            tr2.start();
-            tr1.join();
-            tr2.join();
-            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
-        }
-        Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + (((1000 * 2) / CalcSupport.sum(sampleSorted)) * (1 / 1)));
-    }
-
-    @Override
-    public void run() {
+        //System.out.println("loop" + loop);
+        double[] sampleSorted = new double[loop];
         try {
-            os.write(sendData);
+            for (int i = 0; i < loop; i++) {
+                if (i == 0) {
+                    sendData = new byte[size];
+                } else {
+                    sendData = new byte[1];
+                }
+                os.write(sendData);
+                long startwrite = System.nanoTime();
+                os.write('\n');
+                os.flush();
+                String line = reader.readLine();
+                sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
+                //System.out.println("length" + line.getBytes().length);
+            }
+            os.write("quit".getBytes());
             os.write('\n');
             os.flush();
-            //reader.readLine();
         } catch (IOException ex) {
             ex.printStackTrace();
-        } finally {
-            try {
-                os.close();
-                reader.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
         }
+        return sampleSorted;
+    }
+
+    double[] concat(double[] A, double[] B) {
+        int aLen = A.length;
+        int bLen = B.length;
+        double[] C = new double[aLen + bLen];
+        System.arraycopy(A, 0, C, 0, aLen);
+        System.arraycopy(B, 0, C, aLen, bLen);
+        return C;
     }
 
     @Override
-    public long getOverheadtime() {
-        return overheadtime;
-    }
-
-    @Override
-    public void setOverheadtime(long time) {
-        this.overheadtime = time;
-    }
-
-    @Override
-    public MyRunnable clone() {
+    public Callable clone() {
         return new TCPChatClientRunnable(sendData.length);
     }
 
-    @Override
-    public Closeable getClose() {
-        return null;
+    public TCPChatClientRunnable(int size) {
+
     }
 }

@@ -1,90 +1,96 @@
 package NetworkBench;
 
 import BenchCommonUtils.CalcSupport;
-import DiskBenchmark.MyRunnable;
-import java.io.*;
+import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
+import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class UDPEchoClientRunnable implements MyRunnable {
+public class UDPEchoClientRunnable implements Callable {
 
-    private DatagramSocket clientSocket;
-    private byte[] sendData;
-    private byte[] receiveData;
-    private DatagramPacket sendPacket;
-    private DatagramPacket receivePacket;
-    private long overheadtime;
-
-    public DatagramSocket getClientSocket() {
-        return clientSocket;
-    }
+    private int Size;
+    private int loop;
 
     public UDPEchoClientRunnable(int Size) {
+        this.Size = Size;
+    }
+    public static void main(String args[]) throws Exception {
+        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable(1);
+        objUDPEchoClientRunnable.domeasurement(63 * 1024, 1000);
+    }
+    @Override
+    public double[] call() {
+        //System.out.println("loop" + loop);
+        byte[] sendData;
+        byte[] receiveData;
         InetAddress IPAddress;
+        double[] sampleSorted = new double[loop];
+        DatagramSocket clientSocket = null;
+        if (Size == 1) {
+            sendData = new byte[1];
+        } else if (Size == 1024) {
+            sendData = new byte[2];
+        } else {
+            sendData = new byte[3];
+        }
+        receiveData = new byte[Size];
         try {
             IPAddress = InetAddress.getByName("localhost");
             clientSocket = new DatagramSocket();
-            sendData = new byte[Size];
-            receiveData = new byte[10];
-            sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
-            receivePacket = new DatagramPacket(receiveData, receiveData.length);
-        } catch (UnknownHostException ex) {
-            ex.printStackTrace();
+            DatagramPacket sendPacket;
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            for (int i = 0; i < loop; i++) {
+                try {
+                    sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+                    long startwrite = System.nanoTime();
+                    clientSocket.send(sendPacket);
+                    clientSocket.setSoTimeout(30);
+                    clientSocket.receive(receivePacket);
+                    sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
+                    //System.out.println("receivePacket" + receivePacket.getData().length);
+                } catch (SocketTimeoutException ex) {
+                    //System.out.println("timeout");
+                }
+            }
         } catch (SocketException ex) {
             ex.printStackTrace();
+        } catch (UnknownHostException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+        return sampleSorted;
     }
 
-    public static void main(String args[]) throws Exception {
-        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable((1024 * 63));
-        double[] sampleSorted = new double[3000];
-        for (int i = 0; i < 3000; i++) {
-            Thread tr1 = new Thread(objUDPEchoClientRunnable.clone());
-            Thread tr2 = new Thread(objUDPEchoClientRunnable.clone());
-            long startwrite = System.nanoTime();
-            tr1.start();
-            tr2.start();
-            tr1.join();
-            tr2.join();
-            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
-        }
+    public void domeasurement(int size, int loop) throws InterruptedException, ExecutionException {
+        double[] sampleSorted1, sampleSorted2, sampleSorted;
+        UDPEchoClientRunnable objUDPEchoClientRunnable1 = new UDPEchoClientRunnable(1);
+        objUDPEchoClientRunnable1.loop = loop;
+        objUDPEchoClientRunnable1.Size = size;
+        UDPEchoClientRunnable objUDPEchoClientRunnable2 = new UDPEchoClientRunnable(1);
+        objUDPEchoClientRunnable2.loop = loop;
+        objUDPEchoClientRunnable2.Size = size;
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Future<double[]> future1 = executor.submit(objUDPEchoClientRunnable1);
+        Future<double[]> future2 = executor.submit(objUDPEchoClientRunnable2);
+        sampleSorted1 = future1.get();
+        sampleSorted2 = future2.get();
+        sampleSorted = concat(sampleSorted1, sampleSorted2);
         Arrays.sort(sampleSorted);
         System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
         System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + (((3000 * 2) / CalcSupport.sum(sampleSorted)) * (1 / 1)));
+        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop * 2 / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+        executor.shutdown();
     }
 
-    @Override
-    public void run() {
-        try {
-            clientSocket.send(sendPacket);
-            clientSocket.setSoTimeout(30);
-            clientSocket.receive(receivePacket);
-        } catch (SocketTimeoutException ex) { //System.out.println("timeout");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            clientSocket.close();
-        }
-    }
-
-    @Override
-    public long getOverheadtime() {
-        return overheadtime;
-    }
-
-    @Override
-    public void setOverheadtime(long time) {
-        this.overheadtime = 0;
-    }
-
-    @Override
-    public MyRunnable clone() {
-        return new UDPEchoClientRunnable(sendData.length);
-    }
-
-    @Override
-    public Closeable getClose() {
-        return null;
+    double[] concat(double[] A, double[] B) {
+        int aLen = A.length;
+        int bLen = B.length;
+        double[] C = new double[aLen + bLen];
+        System.arraycopy(A, 0, C, 0, aLen);
+        System.arraycopy(B, 0, C, aLen, bLen);
+        return C;
     }
 }

@@ -8,8 +8,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-   
-/**   
+
+/**
  *
  * @author kamalnath_ng
  */
@@ -29,10 +29,24 @@ class ThreadServerClient extends Thread {
             //Create input and output streams for this client.
             reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             os = new PrintStream(clientSocket.getOutputStream());
-            byte[] b = new byte[1];
-            String line = reader.readLine();
-            //System.out.println("RECEIVED: " + line.length());
-            os.println();
+            int i = 0;
+            String line = "";
+            String ping="";
+            while (true) {
+                if (i == 0) {
+                    line = reader.readLine();
+                    //System.out.println("length "+line.getBytes().length);
+                }else{
+                    ping = reader.readLine();
+                    //System.out.println("ping "+ping.getBytes().length);
+                }
+                i++;
+                //System.out.println("length "+line.length);
+                if (ping!=null&&ping.startsWith("quit")) {
+                    break;
+                }
+                os.println(line);
+            }
 
         } catch (IOException e) {
         } finally {
