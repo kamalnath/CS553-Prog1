@@ -1,6 +1,7 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * This is a Utility class which will do the following for any job that needs to be bench marked
+ * it cleans the JVM
+ * it warms up the JVM by running the task 
  */
 package BenchCommonUtils;
 
@@ -51,8 +52,8 @@ public class BenchMarkExecuter {
         double[] times = getTimes();
         double[] sampleSorted = times.clone();	// must make a clone since do not want the sort side effect to affect the caller
         Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+        System.out.print("		LATENCY  : milli second(s)/operation [ min :" + sampleSorted[0]*1000 + " | max : " + sampleSorted[sampleSorted.length - 1]*1000 + " | median : " + CalcSupport.median(sampleSorted)*1000);
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted)*1000 + " ]  ");
 
         if (task instanceof Runnable) {
             System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements * 2 * params.getFactor()) / CalcSupport.sum(sampleSorted)));

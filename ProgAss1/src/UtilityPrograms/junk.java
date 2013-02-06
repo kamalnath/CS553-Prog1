@@ -2,10 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package DiskBenchmark;
+package UtilityPrograms;
 
 import BenchCommonUtils.CalcSupport;
 import BenchCommonUtils.RandomUtils;
+import DiskBenchmark.CustBuffBuffStreamCallableRead;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -119,26 +120,40 @@ public class junk {
         byte[] buf = new byte[1024*1024];
         i = 0;
         sampleSorted = new double[3000];
-        RandomAccessFile file = new RandomAccessFile("D:/Data/read" + RandomUtils.getRandFileName(), "rw");
+//        RandomAccessFile file = new RandomAccessFile("D:/Data/read" + RandomUtils.getRandFileName(), "rw");
+//        while (i < 3000) {
+//            long startwrite = System.nanoTime();
+//            try {
+//                int rand = RandomUtils.getRandomGenerator().nextInt(buf.length);
+//                file.seek(rand);
+//                file.write(buf);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
+//            i++;
+//        }
+//        file.close();
+//        Arrays.sort(sampleSorted);
+//        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
+//        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+//        System.out.println("		THROUGHPUT :(MB/sec) " + ((3000 / CalcSupport.sum(sampleSorted)) * (1 / 1)));
+        i=0;
+        CustBuffBuffStreamCallableRead objCustBuffBuffStreamCallableRead = new CustBuffBuffStreamCallableRead(buf, "D:/Data/read");
         while (i < 3000) {
             long startwrite = System.nanoTime();
             try {
-                int rand = RandomUtils.getRandomGenerator().nextInt(buf.length);
-                file.seek(rand);
-                file.write(buf);
+                objCustBuffBuffStreamCallableRead.call();
             } catch (Exception e) {
                 e.printStackTrace();
             }
             sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
             i++;
         }
-        file.close();
         Arrays.sort(sampleSorted);
         System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
         System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
         System.out.println("		THROUGHPUT :(MB/sec) " + ((3000 / CalcSupport.sum(sampleSorted)) * (1 / 1)));
-        
-        
         
         
         //RandomUtils.fileCleanup("D:/Data/read");

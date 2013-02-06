@@ -17,8 +17,8 @@ private String host;
         this.host=host;
     }
     public static void main(String args[]) throws Exception {
-        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable("localhost");
-        objUDPEchoClientRunnable.domeasurement(63 * 1024, 1000);
+        UDPEchoClientRunnable objUDPEchoClientRunnable = new UDPEchoClientRunnable("192.168.1.4");
+        objUDPEchoClientRunnable.domeasurement(1, 5000);
     }
     @Override
     public double[] call() {
@@ -37,7 +37,7 @@ private String host;
         }
         receiveData = new byte[Size];
         try {
-            IPAddress = InetAddress.getByName("localhost");
+            IPAddress = InetAddress.getByName(host);
             clientSocket = new DatagramSocket();
             DatagramPacket sendPacket;
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -51,6 +51,8 @@ private String host;
                     sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
                     //System.out.println("receivePacket" + receivePacket.getData().length);
                 } catch (SocketTimeoutException ex) {
+                     loop=loop-1;
+                     i=i-1;
                     //System.out.println("timeout");
                 }
             }
@@ -73,15 +75,19 @@ private String host;
         objUDPEchoClientRunnable2.loop = loop;
         objUDPEchoClientRunnable2.Size = size;
         ExecutorService executor = Executors.newFixedThreadPool(2);
+        long startwrite = System.nanoTime();
         Future<double[]> future1 = executor.submit(objUDPEchoClientRunnable1);
         Future<double[]> future2 = executor.submit(objUDPEchoClientRunnable2);
         sampleSorted1 = future1.get();
         sampleSorted2 = future2.get();
         sampleSorted = concat(sampleSorted1, sampleSorted2);
         Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop * 2 / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+        System.out.print("		LATENCY  :milli second(s)/operation [ min :" + sampleSorted[0]*1000 + " | max : " + sampleSorted[sampleSorted.length - 1]*1000 + " | median : " + CalcSupport.median(sampleSorted)*1000);
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted)*1000 + " ]  ");
+         double headdercorrection = (double)(loop * 20*2)/(1024*1024);
+         double time =(System.nanoTime() - startwrite) * 1e-9;
+        System.out.println("		THROUGHPUT :(MB/sec) " + ((((loop+headdercorrection) * 2 / time) * size) / (1024 * 1024)));
+        
         executor.shutdown();
     }
 

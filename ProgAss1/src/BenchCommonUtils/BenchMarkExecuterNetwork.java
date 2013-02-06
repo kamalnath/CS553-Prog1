@@ -52,13 +52,15 @@ public class BenchMarkExecuterNetwork {
         double[] times = getTimes();
         double[] sampleSorted = times.clone();	// must make a clone since do not want the sort side effect to affect the caller
         Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
+        System.out.print("		LATENCY  : milli second(s)/operation [ min :" + sampleSorted[0]*1000 + " | max : " + sampleSorted[sampleSorted.length - 1] *1000+ " | median : " + CalcSupport.median(sampleSorted)*1000);
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted)*1000 + " ]  ");
 
         if (task instanceof Runnable) {
-            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements * 2 * params.getFactor()) / CalcSupport.sum(sampleSorted)));
+            double headdercorrection = (params.numberMeasurements * 2* 8)/(1024*1024);
+            System.out.println("		THROUGHPUT :(MB/sec) " + (((params.numberMeasurements * 2 +0)* params.getFactor()) / CalcSupport.sum(sampleSorted)));
         } else {
-            System.out.println("		THROUGHPUT :(MB/sec) " + ((params.numberMeasurements * params.getFactor()) / CalcSupport.sum(sampleSorted)));
+            double headdercorrection = (params.numberMeasurements * 2* 8)/(1024*1024);
+            System.out.println("		THROUGHPUT :(MB/sec) " + (((params.numberMeasurements+0) * params.getFactor()) / CalcSupport.sum(sampleSorted)));
         }
     }
 

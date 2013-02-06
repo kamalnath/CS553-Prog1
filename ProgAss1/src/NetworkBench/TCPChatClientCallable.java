@@ -33,9 +33,11 @@ public class TCPChatClientCallable implements MyCallable {
             ex.printStackTrace();
         }
         Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+        System.out.print("		LATENCY  : milli second(s)/operation [ min :" + sampleSorted[0] *1000+ " | max : " + sampleSorted[sampleSorted.length - 1]*1000 + " | median : " + CalcSupport.median(sampleSorted)*1000);
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted)*1000 + " ]  ");
+        double headdercorrection = (double)(loop * 20)/(1024*1024);
+        //System.out.println(headdercorrection);
+        System.out.println("		THROUGHPUT :(MB/sec) " + ((((loop+headdercorrection) / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
     }
 
     private double[] call(int size, int loop) {
@@ -85,8 +87,8 @@ public class TCPChatClientCallable implements MyCallable {
 
     public static void main(String[] args) throws Exception {
         TCPChatClientCallable objTCPChatClientCallable;
-        objTCPChatClientCallable = new TCPChatClientCallable("localhost");
-        objTCPChatClientCallable.domeasurement(63 * 1024, 5000);
+        objTCPChatClientCallable = new TCPChatClientCallable("192.168.1.4");
+        objTCPChatClientCallable.domeasurement(1024, 1000);
 
     }
 

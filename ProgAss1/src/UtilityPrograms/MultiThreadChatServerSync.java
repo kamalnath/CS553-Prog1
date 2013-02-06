@@ -1,4 +1,4 @@
-package progass1;
+package UtilityPrograms;
 
 import java.io.DataInputStream;
 import java.io.PrintStream;

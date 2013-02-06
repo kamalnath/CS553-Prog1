@@ -10,104 +10,56 @@ import BenchCommonUtils.Params;
 import BenchCommonUtils.RandomUtils;
 import java.io.*;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class BenchDiskMain {
 
     static String filePath;
     private static final Params params = new Params();
-
     public static void main(String[] args) throws FileNotFoundException, IOException {
         try {
-            System.out.println("Please enter the tmp File location");
-            filePath = "D:/Data/read";
+            Scanner sc = new Scanner(System.in);
+            boolean flag=true;
+            while(flag){
+            System.out.println("Please enter the tmp File location to proceed");
+            filePath = sc.nextLine();
+            if(!filePath.equalsIgnoreCase("")){
+                flag=false;
+            }
+            }
             benchText(filePath);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
     }
 
-    static void makeDummyFile(String path) {
-        BufferedOutputStream fos = null;
-        try {
-            fos = new BufferedOutputStream(new FileOutputStream(path));
-            byte[] buf = new byte[1024 * 1024 * 1024];
-            try {
-                fos.write(buf, 0, buf.length);
-                fos.write(buf, 0, buf.length);
-                fos.write(buf, 0, buf.length);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    fos.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+    private static void benchText(String filePath) throws FileNotFoundException, InterruptedException, IOException {
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            System.out.println("                      Select your choice                               ");
+            System.out.println("  0  >------>          Set up environment     <--------------<   ");
+            System.out.println("  1  >------>          Bencmark Reads         <--------------<   ");
+            System.out.println("  2  >------>          Benchmark Write        <--------------<   ");
+            System.out.println("  3  >------>             To Exit             <--------------<   ");
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            switch (sc.nextInt()) {
+                case 0:
+                    setuEnv();
+                    break;
+                case 1:
+                    showReadmenu();
+                    break;
+                case 2:
+                    showWritemenu();
+                    break;
+                case 3:
+                    System.exit(0);
+                    break;
+                default:
+                    break;
             }
         }
-    }
-
-    private static void benchText(String filePath) throws FileNotFoundException, InterruptedException, IOException {
-
-//        File newFolder = new File(filePath + RandomUtils.getFilepathRead());
-//        newFolder = new File(filePath + RandomUtils.getFilepathRandRead());
-//        newFolder.mkdirs();
-//        newFolder = new File(filePath + RandomUtils.getFilepathWrite());
-//        newFolder.mkdirs();
-//
-//        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(filePath + RandomUtils.getFilepathRead()));
-//        byte[] buf = new byte[1024 * 1024 * 1024];
-//        try {
-//            fos.write(buf, 0, buf.length);
-//            fos.write(buf, 0, buf.length);
-//            fos.write(buf, 0, buf.length);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                fos.close();
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//        for (int i = 0; i < 4; i++) {
-//            makeDummyFile(filePath + RandomUtils.getFilepathRead() + i);
-//
-//        }
-//        for (int i = 0; i < 4; i++) {
-//            makeDummyFile(filePath + RandomUtils.getFilepathRandRead() + i);
-//
-//        }
-
-        System.out.println("Start WRITE benchmark with little block (1 B)");
-
-//        //benchWrite(1, filePath);
-//        benchWrite(1, filePath);
-//        benchWrite(2, filePath);
-//        benchWrite(3, filePath);
-//        System.out.println("Start WRITE benchmark with medium block (1 KB)");
-//       
-//        System.out.println("Start WRITE benchmark with medium block (1 MB)");
-//        benchWrite(3);
-//        System.out.println("Start WRITE benchmark with medium block (1 GB)");
-//        benchWrite(4);
-
-         System.out.println("--- READ benchmark with little block (1 B)--");
-        benchRead(1);
-         System.out.println("--- READ benchmark with little block (1 KB)--");
-        benchRead(2);
-        System.out.println("--- READ benchmark with little block (1 MB)--");
-        benchRead(3);
-         System.out.println("--- READ benchmark with little block (1 GB)--");
-        benchRead(4);
     }
 
     private static void benchWrite(final int iType, String filePath) throws FileNotFoundException, InterruptedException, IOException {
@@ -116,25 +68,37 @@ public class BenchDiskMain {
         int bufflen = 0;
         switch (iType) {
             case 1:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start WRITE benchmark with little block (1 B)");
                 params.setWarmupTime(10);
                 params.setNumberMeasurements(5000);
                 buf = new byte[1];
                 bufflen = 1;
                 break;
             case 2:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start WRITE benchmark with little block (1 KB)");
                 params.setWarmupTime(10);
                 params.setNumberMeasurements(5000);
                 buf = new byte[1024];
                 bufflen = 1024;
                 break;
             case 3:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start WRITE benchmark with little block (1 MB)");
                 params.setNumberMeasurements(4000);
                 params.setWarmupTime(10);
                 buf = new byte[1024 * 1024];
                 bufflen = buf.length;
                 break;
             case 4:
-                params.setNumberMeasurements(1);
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start WRITE benchmark with little block (1 GB)");
+                params.setNumberMeasurements(4);
                 params.setWarmupTime(1);
                 buf = new byte[1024 * 1024 * 1024];
                 bufflen = buf.length;
@@ -182,8 +146,6 @@ public class BenchDiskMain {
         System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
         System.out.println("");
 
-
-
     }
 
     private static void benchRead(final int iType) throws FileNotFoundException, InterruptedException {
@@ -192,21 +154,33 @@ public class BenchDiskMain {
         params.setIsWriteOP(false);
         switch (iType) {
             case 1:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start READ benchmark with little block (1 B)");
                 params.setWarmupTime(10);
                 params.setNumberMeasurements(1000);
                 buf = new byte[1];
                 break;
             case 2:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start READ benchmark with little block (1 KB)");
                 params.setWarmupTime(10);
                 params.setNumberMeasurements(1000);
                 buf = new byte[512];
                 break;
             case 3:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start READ benchmark with little block (1 MB)");
                 params.setNumberMeasurements(1000);
                 params.setWarmupTime(10);
                 buf = new byte[1024 * 1024];
                 break;
             case 4:
+                System.out.println("");
+                System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+                System.out.println("Start READ benchmark with little block (1 GB)");
                 params.setNumberMeasurements(3);
                 params.setWarmupTime(1);
                 buf = new byte[1024 * 1024 * 1024];
@@ -220,7 +194,7 @@ public class BenchDiskMain {
         final byte[] fbuf = buf;
 
         params.setIsWriteOP(false);
-        params.setFactor((double)buf.length / (1024 * 1024));
+        params.setFactor((double) buf.length / (1024 * 1024));
         System.out.println("");
         System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
         System.out.println("");
@@ -247,51 +221,141 @@ public class BenchDiskMain {
         BenchMarkExecuter benchRandParallel = new BenchMarkExecuter(objRandRunnableRead, params);
     }
 
-    private static void doSequential(int size) throws FileNotFoundException, IOException {
-        byte[] buf = new byte[size];
-        int bufflen = 1;
-        int i = 0;
-        long startfileclose = System.nanoTime();
-        double[] sampleSorted = new double[100000];
-        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(filePath + RandomUtils.getRandFileName()));
-        while (i < 100000) {
-            long startwrite = System.nanoTime();
+    private static void showReadmenu() throws FileNotFoundException, InterruptedException {
+        Scanner sc = new Scanner(System.in);
+        boolean flag=true;
+        while (flag) {
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            System.out.println("                     Select your choice                               ");
+            System.out.println("  0  >------> Run all READ Bench marks for all size blocks <--------------<   ");
+            System.out.println("  1  >------>      Run all READ Bench marks for 1 Byte     <--------------<   ");
+            System.out.println("  2  >------>      Run all READ Bench marks for 1 KB       <--------------<   ");
+            System.out.println("  3  >------>      Run all READ Bench marks for 1 MB       <--------------<   ");
+            System.out.println("  4  >------>      Run all READ Bench marks for 1 GB       <--------------<   ");
+            System.out.println("  5  >------>                     To return                <--------------<   ");
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            switch (sc.nextInt()) {
+                case 0:
+                    benchRead(1);
+                    benchRead(2);
+                    benchRead(3);
+                    break;
+                case 1:
+                    benchRead(1);
+                    break;
+                case 2:
+                    benchRead(2);
+                    break;
+                case 3:
+                    benchRead(3);
+                    break;
+                case 4:
+                    benchRead(4);
+                    break;
+                default:flag=false;
+                    break;
+            }
+        }
+    }
+
+    static void showWritemenu() throws IOException, FileNotFoundException, InterruptedException {
+        Scanner sc = new Scanner(System.in);
+        boolean flag=true;
+        while (flag) {
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            System.out.println("                     Select your choice                               ");
+            System.out.println("  0  >------> Run all write Bench marks for all size blocks <--------------<   ");
+            System.out.println("  1  >------>      Run all write Bench marks for 1 Byte     <--------------<   ");
+            System.out.println("  2  >------>      Run all write Bench marks for 1 KB       <--------------<   ");
+            System.out.println("  3  >------>      Run all write Bench marks for 1 MB       <--------------<   ");
+            System.out.println("  4  >------>      Run all write Bench marks for 1 GB       <--------------<   ");
+            System.out.println("  5  >------>                     To return                 <--------------<   ");
+            System.out.println("------------------------------ --------------------------------- --------------------------------- --------------------------------- --- ------------------- --");
+            switch (sc.nextInt()) {
+                case 0:
+                    benchWrite(1, filePath);
+                    benchWrite(2, filePath);
+                    benchWrite(3, filePath);
+                    break;
+                case 1:
+                    benchWrite(1, filePath);
+                    break;
+                case 2:
+                    benchWrite(2, filePath);
+                    break;
+                case 3:
+                    benchWrite(3, filePath);
+                    break;
+                case 4:
+                    benchWrite(4, filePath);
+                    break;
+                default:flag=false;
+                    break;
+            }
+        }
+    }
+
+    public static void setuEnv() throws FileNotFoundException {
+         System.out.println("Folder structure and Dummy file[s] creation stated ");
+        File newFolder = new File(filePath + RandomUtils.getFilepathRead());
+        newFolder = new File(filePath + RandomUtils.getFilepathRandRead());
+        newFolder.mkdirs();
+        newFolder = new File(filePath + RandomUtils.getFilepathWrite());
+        newFolder.mkdirs();
+        System.out.println("This will take some time please wait[ approx 3 to 5 mins] ");
+        BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(filePath + RandomUtils.getFilepathRead()));
+        byte[] buf = new byte[1024 * 1024 * 1024];
+        try {
+            fos.write(buf, 0, buf.length);
+            fos.write(buf, 0, buf.length);
+            fos.write(buf, 0, buf.length);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
             try {
+                fos.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            makeDummyFile(filePath + RandomUtils.getFilepathRead() + i);
+
+        }
+        System.out.println("Dummy Files for read operations made ");
+        for (int i = 0; i < 4; i++) {
+            makeDummyFile(filePath + RandomUtils.getFilepathRandRead() + i);
+
+        }
+        System.out.println("Dummy Files for Randome read operations made ");
+        System.out.println("Folder structure and Dummy file[s] creation done");
+    }
+    static void makeDummyFile(String path) {
+        BufferedOutputStream fos = null;
+        try {
+            fos = new BufferedOutputStream(new FileOutputStream(path));
+            byte[] buf = new byte[1024 * 1024 * 1024];
+            try {
+                fos.write(buf, 0, buf.length);
+                fos.write(buf, 0, buf.length);
                 fos.write(buf, 0, buf.length);
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    fos.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
-            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
-            i++;
-        }
-        fos.close();
-        Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + ((100000 / CalcSupport.sum(sampleSorted)) * (size / (1024 * 1024))));
-    }
-
-    private static void doRandom(int size) throws FileNotFoundException, IOException {
-        byte[] buf = new byte[size];
-        int i = 0;
-        double[] sampleSorted = new double[100000];
-        RandomAccessFile file = new RandomAccessFile(filePath + RandomUtils.getRandFileName(), "rw");
-        while (i < 100000) {
-            long startwrite = System.nanoTime();
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } finally {
             try {
-                int rand = RandomUtils.getRandomGenerator().nextInt(100);
-                file.seek(rand);
-                file.write(buf);
-            } catch (Exception e) {
-                e.printStackTrace();
+                fos.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-            sampleSorted[i] = (System.nanoTime() - startwrite) * 1e-9;
-            i++;
         }
-        file.close();
-        Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + ((100000 / CalcSupport.sum(sampleSorted)) * (size / (1024 * 1024))));
     }
 }

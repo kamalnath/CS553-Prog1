@@ -108,12 +108,13 @@ public class BenchNetworkMain {
         System.out.println("");
         System.out.println("--- Results for Single threaded Runs--");
         System.out.println("      UDP Packets :");
-        UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable(ibufflen);
+        UDPEchoClientCallable objUDPEchoClientCallable = new UDPEchoClientCallable(ibufflen,strServer);
         BenchMarkExecuterNetwork benchUDPEchoClientCallable = new BenchMarkExecuterNetwork(objUDPEchoClientCallable, params);
-        objUDPEchoClientCallable.getClientSocket().close();
+        //objUDPEchoClientCallable.getClientSocket().close();
         cleanJvm();
         System.out.println("      TCP Packets :");
-        new TCPChatClientCallable(strServer).domeasurement(bufflen, 2000);
+        
+        new TCPChatClientCallable(strServer).domeasurement(bufflen, 1000);
         cleanJvm(); 
         params.setNumberThreads(2);
         System.out.println("");
@@ -124,7 +125,7 @@ public class BenchNetworkMain {
         new UDPEchoClientRunnable(strServer).domeasurement(bufflen, 1000);
         cleanJvm();
         System.out.println("      TCP Packets :");
-        new TCPChatClientRunnable(1).domeasurement(bufflen, 2000);
+        new TCPChatClientRunnable(1,strServer).domeasurement(bufflen, 1000);
     }
 
     private static void cleanJvm() {

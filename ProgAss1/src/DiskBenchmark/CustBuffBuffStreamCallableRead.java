@@ -58,7 +58,6 @@ public class CustBuffBuffStreamCallableRead implements MyCallable {
         } else {
             i++;
         }
-
         return i;
     }
 }

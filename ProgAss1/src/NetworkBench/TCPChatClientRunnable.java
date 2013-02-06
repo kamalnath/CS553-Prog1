@@ -23,31 +23,41 @@ public class TCPChatClientRunnable implements Callable {
     BufferedReader reader;
     private int loop;
     private int size;
+    private String host;
 
     public static void main(String[] args) throws Exception {
-        TCPChatClientRunnable objUDPEchoClientCallable1 = new TCPChatClientRunnable(1);
-        objUDPEchoClientCallable1.domeasurement(63 * 1024, 5000);
+        TCPChatClientRunnable objUDPEchoClientCallable1 = new TCPChatClientRunnable(1,"192.168.1.4");
+        objUDPEchoClientCallable1.domeasurement(1, 1000);
+    }
 
+    TCPChatClientRunnable(int i, String strServer) {
+        this.host=strServer;
     }
     public void domeasurement(int size, int loop) throws InterruptedException, ExecutionException {
         double[] sampleSorted1, sampleSorted2, sampleSorted;
-        TCPChatClientRunnable objUDPEchoClientCallable1 = new TCPChatClientRunnable(1);
+        TCPChatClientRunnable objUDPEchoClientCallable1 = new TCPChatClientRunnable(1,host);
         
         objUDPEchoClientCallable1.loop = loop;
         objUDPEchoClientCallable1.size = size;
-        TCPChatClientRunnable objUDPEchoClientCallable2 = new TCPChatClientRunnable(1);
+        TCPChatClientRunnable objUDPEchoClientCallable2 = new TCPChatClientRunnable(1,host);
         objUDPEchoClientCallable2.loop = loop;
         objUDPEchoClientCallable2.size = size;
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        long startwrite = System.nanoTime();
         Future<double[]> future1 = executor.submit(objUDPEchoClientCallable1);
         Future<double[]> future2 = executor.submit(objUDPEchoClientCallable2);
         sampleSorted1 = future1.get();
         sampleSorted2 = future2.get();
         sampleSorted = concat(sampleSorted1, sampleSorted2);
         Arrays.sort(sampleSorted);
-        System.out.print("		LATENCY  : second(s)/operation [ min :" + sampleSorted[0] + " | max : " + sampleSorted[sampleSorted.length - 1] + " | median : " + CalcSupport.median(sampleSorted));
-        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted) + " ]  ");
-        System.out.println("		THROUGHPUT :(MB/sec) " + (((loop * 2 / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+        System.out.print("		LATENCY  : milli second(s)/operation [ min :" + sampleSorted[0]*1000 + " | max : " + sampleSorted[sampleSorted.length - 1]*1000 + " | median : " + CalcSupport.median(sampleSorted)*1000);
+        System.out.println(" | mean : " + CalcSupport.mean(sampleSorted)*1000 + " ]  ");
+         double headdercorrection = (double)(loop * 20*2)/(1024*1024);
+         double time =(System.nanoTime() - startwrite) * 1e-9;
+        System.out.println("		THROUGHPUT :(MB/sec) " + ((((loop+headdercorrection) * 2 / time) * size) / (1024 * 1024)));
+  //       System.out.println("		THROUGHPUT :(MB/sec) " + ((((loop+0) * 2 / CalcSupport.sum(sampleSorted)) * size) / (1024 * 1024)));
+//         System.out.println("		THROUGHPUT :(MB/sec) " + ((2*loop*size)+headdercorrection)/(1024*1024*CalcSupport.sum(sampleSorted)));
+         
         executor.shutdown();
     }
 
@@ -57,8 +67,6 @@ public class TCPChatClientRunnable implements Callable {
         Socket clientSocket = null;
         // The default port.
         int portNumber = 2222;
-        // The default host.
-        String host = "localhost";
         // The input stream reader
         try {
             sendData = new byte[size];
